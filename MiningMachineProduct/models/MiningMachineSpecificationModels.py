@@ -10,18 +10,17 @@ from django.db import models, connection
 from rest_framework import  serializers
 
 
-class MiningMachineProduct(models.Model):
+class MiningMachineSpecification(models.Model):
     """
-    矿机产品
+    矿机规格
     """
-    comboId = models.IntegerField(help_text="套餐ID")
-    comboPeriodId = models.IntegerField(help_text="套餐周期ID")
-    comboModelId = models.IntegerField(help_text="套餐模式ID")
-    miningMachineSpecificationId = models.IntegerField(help_text="矿机规格ID")
-    price = models.FloatField(help_text='价钱')
+    miningMachineId = models.IntegerField(help_text="矿机ID")
+    specification = models.CharField(max_length=200, help_text="规格")
 
     class Meta:
-        db_table = "MiningMachineProduct"
+        db_table = "MiningMachineSpecification"
+        verbose_name = '矿机规格'
+        verbose_name_plural = '矿机规格'
 
     @staticmethod
     def GetProductCount(InquireSQL):
@@ -33,7 +32,7 @@ class MiningMachineProduct(models.Model):
         return rst[0]
 
 
-class MiningMachineProductSerializers(serializers.ModelSerializer):
+class MiningMachineSpecificationSerializers(serializers.ModelSerializer):
     class Meta:
-        model = MiningMachineProduct
+        model = MiningMachineSpecification
         fields = "__all__"

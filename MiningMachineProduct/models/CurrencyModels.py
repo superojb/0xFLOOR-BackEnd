@@ -22,6 +22,8 @@ class Currency(models.Model):
 
     class Meta:
         db_table = "Currency"
+        verbose_name = '货币'
+        verbose_name_plural = '货币'
 
     @staticmethod
     def GetProductCount(InquireSQL):

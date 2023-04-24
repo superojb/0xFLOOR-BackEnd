@@ -9,15 +9,15 @@
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics
 from rest_framework import permissions
-from MiningMachineProduct.models.CurrencyModels import Currency, CurrencySerializers
+from MiningMachineProduct.models.ComboModelModels import ComboModel, ComboModelSerializers
 
-class CurrencyList(generics.ListAPIView):
-    queryset = Currency.objects.all()
-    serializer_class = CurrencySerializers
+class ComboModelList(generics.ListAPIView):
+    queryset = ComboModel.objects.all()
+    serializer_class = ComboModelSerializers
     permission_classes = [permissions.AllowAny]
 
     @swagger_auto_schema(
-        operation_summary="Frontend 获取货币List",
-        operation_description="获取货币List", )
+        operation_summary="Frontend 获取套餐模式List",
+        operation_description="获取套餐模式List", )
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)

@@ -9,15 +9,15 @@
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics
 from rest_framework import permissions
-from MiningMachineProduct.models.CurrencyModels import Currency, CurrencySerializers
+from MiningMachineProduct.models.MiningMachineModels import MiningMachine, MiningMachineSerializers
 
-class CurrencyList(generics.ListAPIView):
-    queryset = Currency.objects.all()
-    serializer_class = CurrencySerializers
+class MiningMachineList(generics.ListAPIView):
+    queryset = MiningMachine.objects.all()
+    serializer_class = MiningMachineSerializers
     permission_classes = [permissions.AllowAny]
 
     @swagger_auto_schema(
-        operation_summary="Frontend 获取货币List",
-        operation_description="获取货币List", )
+        operation_summary="Frontend 获取矿机List",
+        operation_description="获取矿机List", )
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)

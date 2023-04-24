@@ -18,6 +18,8 @@ class ComboPeriod(models.Model):
 
     class Meta:
         db_table = "ComboPeriod"
+        verbose_name = '套餐周期'
+        verbose_name_plural = '套餐周期'
 
     @staticmethod
     def GetProductCount(InquireSQL):

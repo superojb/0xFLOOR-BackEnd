@@ -18,6 +18,8 @@ class ComboModel(models.Model):
 
     class Meta:
         db_table = "ComboModel"
+        verbose_name = '套餐模式'
+        verbose_name_plural = '套餐模式'
 
     @staticmethod
     def GetProductCount(InquireSQL):

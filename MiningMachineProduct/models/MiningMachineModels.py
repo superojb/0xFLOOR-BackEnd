@@ -19,6 +19,8 @@ class MiningMachine(models.Model):
 
     class Meta:
         db_table = "MiningMachine"
+        verbose_name = '矿机'
+        verbose_name_plural = '矿机'
 
     @staticmethod
     def GetProductCount(InquireSQL):

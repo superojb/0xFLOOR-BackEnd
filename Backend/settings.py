@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -37,28 +37,38 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',
 
     'rest_framework',
     'rest_framework.authtoken',
-    'allauth', # new
-    'allauth.account', # new
-    'allauth.socialaccount', # new
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
     'rest_auth',
     'rest_auth.registration',
 
     'drf_yasg',
 
     'MiningMachineProduct',
+    'User',
 ]
 
 REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.TokenAuthentication',
     ],
+    'DEFAULT_PAGINATION_CLASS':  'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
 }
+REST_SESSION_LOGIN = False
 
+# 添加django-rest-auth的设置
+# REST_AUTH_SERIALIZERS = {
+#     'USER_DETAILS_SERIALIZER': 'path.to.custom.serializer.CustomUserDetailsSerializer',
+# }
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -75,7 +85,7 @@ ROOT_URLCONF = 'Backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -147,17 +157,30 @@ STATIC_URL = 'static/'
 # 测试
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' 
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'mojeffreyng@gmail.com'
+EMAIL_HOST_PASSWORD = 'nwkzzbcblskylgqh'
+EMAIL_FROM = "Test"
+DEFAULT_FROM_EMAIL = "Test"
+
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_EMAIL_REQUIRED = True
+# 邮箱认证重定向
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = 'https://www.baidu.com'
+# ACCOUNT_AUTHENTICATION_METHOD = 'email'
+
+# 指定您的站点ID，这是Django所有身份验证和授权服务的必需设置
 SITE_ID = 1 
 
 
 SWAGGER_SETTINGS = {
     # 基础样式
     'SECURITY_DEFINITIONS': {
-        "basic":{
-            'type': 'basic'
-        },
-        'Bearer': {
+        'DRF Token': {
             'type': 'apiKey',
             'name': 'Authorization',
             'in': 'header'
@@ -172,3 +195,7 @@ SWAGGER_SETTINGS = {
     'OPERATIONS_SORTER': 'alpha',
     'VALIDATOR_URL': None,
 }
+
+
+# qq IP 定位API Key
+QQ_Map_API_Key = '2LEBZ-IV3K7-NJVXQ-PWKJY-UZLVH-JSBIP'

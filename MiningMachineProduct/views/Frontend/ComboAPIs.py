@@ -8,10 +8,10 @@
 """
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import permissions
-from rest_framework import generics
+from rest_framework.generics import ListAPIView
 from MiningMachineProduct.models.ComboModels import Combo, ComboSerializers
 
-class ComboList(generics.ListAPIView):
+class ComboList(ListAPIView):
     queryset = Combo.objects.all()
     serializer_class = ComboSerializers
     permission_classes = [permissions.AllowAny]

@@ -1,0 +1,11 @@
+{% load account %}
+{% user_display user as user_display %}
+{% load i18n %}
+{% autoescape off %}
+{% blocktrans with site_name=current_site.name site_domain=current_site.domain %}
+{{ user_display }}欢迎注册 {{ site_name }} 的用户!
+
+这是Email确认URL，请点击完成确认： {{ activate_url }}
+{% endblocktrans %}
+
+{% endautoescape %}

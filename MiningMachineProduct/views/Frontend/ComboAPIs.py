@@ -16,8 +16,13 @@ class ComboList(ListAPIView):
     serializer_class = ComboSerializers
     permission_classes = [permissions.AllowAny]
 
-    @swagger_auto_schema(
-        operation_summary="Frontend 获取套餐List",
-        operation_description="获取套餐List", )
+    swagger_tags = ['矿机产品']
+    swagger = {
+        "operation_summary": "Frontend 获取套餐List",
+        "operation_description": "Frontend 获取套餐List",
+        "tags": swagger_tags,
+    }
+
+    @swagger_auto_schema(**swagger)
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)

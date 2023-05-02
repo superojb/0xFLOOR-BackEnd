@@ -19,9 +19,13 @@ class LoginLogsList(ListAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-    @swagger_auto_schema(
-        operation_summary="Frontend 获取登录记录List",
-        operation_description="获取登录记录List", )
+    swagger_tags = ['用户管理']
+    swagger = {
+        "operation_summary": "Frontend 登入记录列表",
+        "operation_description": "Frontend 登入记录列表",
+        "tags": swagger_tags,
+    }
+    @swagger_auto_schema(**swagger)
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 

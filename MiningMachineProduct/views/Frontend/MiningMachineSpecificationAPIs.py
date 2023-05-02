@@ -16,8 +16,13 @@ class MiningMachineSpecificationList(generics.ListAPIView):
     serializer_class = MiningMachineSpecificationSerializers
     permission_classes = [permissions.AllowAny]
 
-    @swagger_auto_schema(
-        operation_summary="Frontend 获取矿机规格List",
-        operation_description="获取矿机规格List", )
+    swagger_tags = ['矿机产品']
+    swagger = {
+        "operation_summary": "Frontend 获取矿机规格List",
+        "operation_description": "Frontend 获取矿机规格List",
+        "tags": swagger_tags,
+    }
+
+    @swagger_auto_schema(**swagger)
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)

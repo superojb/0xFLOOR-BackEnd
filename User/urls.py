@@ -9,6 +9,7 @@
 from django.urls import path, include, re_path
 from User.Views.AccountConfirmEmail import AccountConfirmEmail
 from User.Views.Frontend.LoginLogsAPIs import LoginLogsList
+from User.Views.Frontend.RevenueAddressAPIs import RevenueAddressList, RevenueAddressAdd, RevenueAddressDelete, RevenueAddressUpdate
 from User.Views.Login import Login
 
 
@@ -21,4 +22,8 @@ urlpatterns = [
     re_path(r'^frontend/rest-auth/user-confirm-email/', AccountConfirmEmail, name='account_email_verification_sent'),
 
     path('frontend/login-logs-list/', LoginLogsList.as_view(), name='login-logs-list'),
+    path('frontend/revenue-address-list/', RevenueAddressList.as_view(), name='revenue-address-list'),
+    path('frontend/revenue-address-add/', RevenueAddressAdd.as_view(), name='revenue-address-add'),
+    path('frontend/revenue-address-delete/', RevenueAddressDelete.as_view(), name='revenue-address-delete'),
+    path('frontend/revenue-address-update/', RevenueAddressUpdate.as_view(), name='revenue-address-update'),
 ]

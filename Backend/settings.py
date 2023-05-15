@@ -50,6 +50,7 @@ INSTALLED_APPS = [
 
     'MiningMachineProduct',
     'User',
+    'Order',
 ]
 
 REST_FRAMEWORK = {

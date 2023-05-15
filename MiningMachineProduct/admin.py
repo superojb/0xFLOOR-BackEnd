@@ -7,6 +7,7 @@ from MiningMachineProduct.models.ComboPeriodModels import ComboPeriod
 from MiningMachineProduct.models.CurrencyModels import Currency
 from MiningMachineProduct.models.MiningMachineModels import MiningMachine
 from MiningMachineProduct.models.MiningMachineProductModels import MiningMachineProduct
+from MiningMachineProduct.models.MiningMachineSettingModels import MiningMachineSetting
 from MiningMachineProduct.models.MiningMachineSpecificationModels import MiningMachineSpecification
 
 
@@ -28,6 +29,9 @@ class MiningMachineAdmin(admin.ModelAdmin):
 class MiningMachineProductAdmin(admin.ModelAdmin):
     list_display = ['id', 'comboId', 'comboPeriodId', 'comboModelId', 'miningMachineSpecificationId', 'price']
 
+class MiningMachineSettingAdmin(admin.ModelAdmin):
+    list_display = ['miningMachineSettingId', 'key', 'value']
+
 class MiningMachineSpecificationAdmin(admin.ModelAdmin):
     list_display = ['id', 'miningMachineId', 'specification']
 
@@ -37,4 +41,5 @@ admin.site.register(ComboPeriod, ComboPeriodAdmin)
 admin.site.register(Currency, CurrencyAdmin)
 admin.site.register(MiningMachine, MiningMachineAdmin)
 admin.site.register(MiningMachineProduct, MiningMachineProductAdmin)
+admin.site.register(MiningMachineSetting, MiningMachineSettingAdmin)
 admin.site.register(MiningMachineSpecification, MiningMachineSpecificationAdmin)

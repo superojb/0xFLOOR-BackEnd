@@ -35,6 +35,9 @@ pip install cryptography
 pip install drf-yasg
 pip install python3-openid
 pip install pymysql
+pip install tronpy
+pip install loguru
+
 ```
 
 ### 数据库

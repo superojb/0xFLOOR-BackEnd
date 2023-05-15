@@ -8,7 +8,6 @@
 """
 import pymysql
 from django.db import models, connection
-from django.utils.translation import ugettext_lazy
 from rest_framework import serializers, exceptions
 from Tools.Mysql import Mysql
 

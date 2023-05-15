@@ -37,7 +37,8 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
 
     path('api/v1/user/', include('User.urls')),
-    path('api/v1/mining-machine-product/', include('MiningMachineProduct.urls'))
+    path('api/v1/mining-machine-product/', include('MiningMachineProduct.urls')),
+    path('api/v1/order/', include('Order.urls'))
 ]
 if DEBUG:
     urlpatterns.append(path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'))

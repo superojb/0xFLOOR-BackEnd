@@ -36,6 +36,8 @@ class Order(models.Model):
             raise exceptions.ValidationError(detail={"msg": "错误的产品！"})
         elif result['code'] == 3:
             raise exceptions.ValidationError(detail={"msg": "产品数量不可为小于1！"})
+        elif result['code'] == 4:
+            raise exceptions.ValidationError(detail={"msg": "沒有該收益地址！"})
 
     @staticmethod
     def GetList(userId: str):
@@ -48,9 +50,17 @@ class Order(models.Model):
             return Mysql.dictFetchAll(cursor)
 
     @staticmethod
-    def Create(userId: str, orderName: str, ItemIdList: list, ItemNumList: list, ItemTypeList: list) -> dict:
+    def UpdateStatus(orderId: str, statusId: int):
+        O = Order.objects.get(orderId=orderId)
+        O.orderStatusId = statusId
+        O.save()
+
+    @staticmethod
+    def Create(userId: str, orderName: str, RevenueAddressId: int,
+               ItemIdList: list, ItemNumList: list, ItemTypeList: list) -> dict:
         cursor = connection.cursor()
-        cursor.callproc('Order_Create', (userId, orderName, ','.join(ItemIdList), ','.join(ItemNumList), ','.join(ItemTypeList)))
+        cursor.callproc('Order_Create', (userId, orderName, RevenueAddressId,
+                                         ','.join(ItemIdList), ','.join(ItemNumList), ','.join(ItemTypeList)))
         result = Mysql.dictFetchAll(cursor)[0]
 
         if Order.verifyMysqlResult(result):

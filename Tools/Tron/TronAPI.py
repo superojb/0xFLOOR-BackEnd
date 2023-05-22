@@ -11,11 +11,11 @@ from tronpy.abi import trx_abi
 from tronpy import Tron
 from tronpy.keys import PrivateKey
 from loguru import logger
-
+from Backend.settings import Tron_URL
 from Tools.Tron.Exception.TronAPIRequestError import TronAPIRequestError
 
 class TronAPI:
-    __base_url = 'https://nile.trongrid.io/'
+    __base_url = Tron_URL
     __USDT_contract_address = 'TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj'
     __client = None
     __contract = None
@@ -40,28 +40,34 @@ class TronAPI:
         response = requests.post(**kwargs) if Post else requests.get(**kwargs)
         if response.status_code == 200:
             responseData = response.json()
-            TronAPI.Log(URL, Identifier, params, responseData)
+            TronAPI.Log(URL, Identifier, params, responseData, 1)
             return responseData
 
         raise TronAPIRequestError(URL, params, Identifier)
 
     @staticmethod
-    def Log(URL: str, Identifier: str, params: dict, response: dict):
-        logger.info(f"URL: {URL}; Identifier: {Identifier}; params: {params}; response: {response}")
+    def Log(URL: str, Identifier: str, params: dict, response: dict, type: int):
+        if type == 1:
+            logger.info(f"URL: {URL}; Identifier: {Identifier}; params: {params}; response: {response}")
+        elif type == 2:
+            logger.error(f"URL: {URL}; Identifier: {Identifier}; params: {params}; response: {response}")
 
-    def getEnergyPrices(self) -> int:
+    @staticmethod
+    def getEnergyPrices() -> int:
         response = requests.get(f'{TronAPI.__base_url}wallet/getenergyprices')
         if response.status_code == 200:
             data = response.json()
             return int(data['prices'].split(',')[-1].split(':')[1])
 
-    def getBandWidthPrices(self) -> int:
+    @staticmethod
+    def getBandWidthPrices() -> int:
         response = requests.get(f'{TronAPI.__base_url}wallet/getbandwidthprices')
         if response.status_code == 200:
             data = response.json()
             return int(data['prices'].split(',')[-1].split(':')[1])
 
-    def GetUSDTTransferEnergyRequired(self, sender_addr: str, recipient_addr: str, amount: int) -> int:
+    @staticmethod
+    def GetUSDTTransferEnergyRequired(Identifier, sender_addr: str, recipient_addr: str, amount: int) -> int:
         raw = trx_abi.encode_single("(address,uint256)", [recipient_addr, amount])
         params = {
             "owner_address": sender_addr,
@@ -70,28 +76,55 @@ class TronAPI:
             "parameter": raw.hex(),
             "visible": True
         }
+        response = TronAPI.Requests(URL=f'{TronAPI.__base_url}wallet/triggerconstantcontract',
+                                    params=params, Identifier=Identifier)
+        return int(response['energy_used'])
 
-        response = requests.post(f'{TronAPI.__base_url}wallet/estimateenergy', json=params)
-
-        if response.status_code == 200:
-            data = response.json()
-            return int(data['energy_required'])
-
-    def GetFeeLimitOfUSDTTransfer(self, sender_addr: str, recipient_addr: str, amount: int):
-        BandWidth = 345
-        EnergyPrices = self.getEnergyPrices()
-        BandWidthPrices = self.getBandWidthPrices()
-        USDTTransferEnergyRequired = self.GetUSDTTransferEnergyRequired(sender_addr, recipient_addr, amount)
-        return BandWidth * BandWidthPrices + EnergyPrices * USDTTransferEnergyRequired
-
-    def DelegateResource(self,
-                         private_key: str,
+    @staticmethod
+    def DelegateResource(Identifier: str,
                          sender_addr: str,
                          recipient_addr: str,
                          balance: int,
-                         resource: str = 'ENERGY') -> str:
+                         resource: str) -> dict:
         """
         把能量代理过去
+        :param sender_addr:
+        :param recipient_addr:
+        :param balance:
+        :param resource:
+        :return:
+        """
+        params = {
+            "owner_address": sender_addr,
+            "receiver_address": recipient_addr,
+            "balance": balance,
+            "resource": resource,
+            "lock": False,
+            "visible": True
+        }
+        response = TronAPI.Requests(URL=f'{TronAPI.__base_url}wallet/delegateresource', params=params,
+                                    Identifier=Identifier)
+        return response
+
+    @staticmethod
+    def GetDelegatedResourceV2(Identifier: str, fromAddress: str, toAddress: str) -> dict:
+        params = {
+            "fromAddress": fromAddress,
+            "toAddress": toAddress,
+            "visible": True
+        }
+        response = TronAPI.Requests(URL=f'{TronAPI.__base_url}wallet/getdelegatedresourcev2', params=params,
+                                    Identifier=Identifier)
+        return response
+
+    @staticmethod
+    def UnDelegateResource(Identifier: str,
+                           sender_addr: str,
+                           recipient_addr: str,
+                           balance: int,
+                           resource: str) -> dict:
+        """
+        取消能量代理过去
         :param private_key:
         :param sender_addr:
         :param recipient_addr:
@@ -99,57 +132,37 @@ class TronAPI:
         :param resource:
         :return:
         """
-        Private_key = PrivateKey(bytes.fromhex(private_key))
+        params = {
+            "owner_address": sender_addr,
+            "receiver_address": recipient_addr,
+            "balance": balance,
+            "resource": resource,
+            "visible": True
+        }
+        response = TronAPI.Requests(URL=f'{TronAPI.__base_url}wallet/undelegateresource', params=params,
+                                    Identifier=Identifier)
+        return response
 
-        txn = (
-            TronAPI.__client.trx.delegate_resource(owner=sender_addr, receiver=recipient_addr, balance=balance, resource=resource)
-            .build()
-            .sign(Private_key)
-        )
-        txn.broadcast().wait()
-        return txn.txid
+    @staticmethod
+    def TriggerSmartContract(Identifier: str,
+                             contract_address: str,
+                             sender_addr: str,
+                             recipient_addr: str,
+                             amount: int,
+                             FeeLimit: int):
+        raw = trx_abi.encode_single("(address,uint256)", [recipient_addr, amount])
+        params = {
+            "owner_address": sender_addr,
+            "contract_address": contract_address,
+            "function_selector": "transfer(address,uint256)",
+            "parameter": raw.hex(),
+            "visible": True,
+            "fee_limit": FeeLimit
+        }
+        response = TronAPI.Requests(URL=f'{TronAPI.__base_url}wallet/triggersmartcontract',
+                                    params=params, Identifier=Identifier)
 
-    def UndelegateResource(self,
-                         private_key: str,
-                         sender_addr: str,
-                         recipient_addr: str,
-                         balance: int,
-                         resource: str = 'ENERGY') -> str:
-        """
-        把取消能量代理过去
-        :param private_key:
-        :param sender_addr:
-        :param recipient_addr:
-        :param balance:
-        :param resource:
-        :return:
-        """
-        Private_key = PrivateKey(bytes.fromhex(private_key))
-
-        txn = (
-            TronAPI.__client.trx.undelegate_resource(owner=sender_addr, receiver=recipient_addr, balance=balance, resource=resource)
-            .build()
-            .sign(Private_key)
-        )
-        txn.broadcast().wait()
-        return txn.txid
-
-    def transferUSDT(self,
-                     private_key: str,
-                     sender_addr: str,
-                     recipient_addr: str,
-                     amount: int,
-                     FeeLimit: int):
-        Private_key = PrivateKey(bytes.fromhex(private_key))
-        txn = (
-            TronAPI.__contract.functions.transfer(recipient_addr, amount)
-            .with_owner(sender_addr)
-            .fee_limit(FeeLimit)
-            .build()
-            .sign(Private_key)
-        )
-        txn.broadcast().wait()
-        return txn.txid
+        return response
 
     def visibleTransfer(self, txID: str) -> bool:
         params = {
@@ -171,18 +184,17 @@ class TronAPI:
 
         return False
 
-
     @staticmethod
-    def GetAccountResource(Address: str) -> dict:
+    def GetAccountResource(Identifier, Address: str) -> dict:
         params = {
             "address": Address,
             "visible": True
         }
 
-        response = requests.post(f'{TronAPI.__base_url}wallet/getaccountresource', json=params)
+        response = TronAPI.Requests(URL=f'{TronAPI.__base_url}wallet/getaccountresource', params=params,
+                                    Identifier=Identifier)
+        return response
 
-        if response.status_code == 200:
-            return response.json()
 
     @staticmethod
     def GetAccount(Address: str) -> dict:
@@ -197,9 +209,10 @@ class TronAPI:
             return response.json()
 
     @staticmethod
-    def CreateAccount(owner_address: str, account_address: str) -> dict:
+    def CreateAccount(Identifier: str, owner_address: str, account_address: str) -> dict:
         """
         只是发起一个创建请求，还未签名和广播
+        :param Identifier:
         :param owner_address:
         :param account_address:
         :return:
@@ -210,15 +223,42 @@ class TronAPI:
             "visible": True
         }
 
-        response = requests.post(f'{TronAPI.__base_url}wallet/createaccount', json=params)
-
-        if response.status_code == 200:
-            return response.json()
+        response = TronAPI.Requests(URL=f'{TronAPI.__base_url}wallet/createaccount', params=params, Identifier=Identifier)
+        return response
 
 
     @staticmethod
-    def BroadcastTransaction():
-        pass
+    def BroadcastTransaction(Identifier, transactionInfo: dict):
+        """
+        广播交易
+        :param Identifier:
+        :param transactionInfo:
+        :return:
+        """
+        response = TronAPI.Requests(URL=f'{TronAPI.__base_url}wallet/broadcasttransaction',
+                                    params=transactionInfo, Identifier=Identifier)
+        return response
+
+    @staticmethod
+    def QueryTransaction(Identifier, TransactionId: str):
+        params = {
+            "value": TransactionId,
+            "visible": True
+        }
+
+        response = TronAPI.Requests(URL=f'{TronAPI.__base_url}walletsolidity/gettransactionbyid',
+                                    params=params, Identifier=Identifier)
+        return response
+
+    @staticmethod
+    def getTransactionInfoById(Identifier, TransactionId: str):
+        params = {
+            "value": TransactionId,
+        }
+
+        response = TronAPI.Requests(URL=f'{TronAPI.__base_url}walletsolidity/gettransactioninfobyid',
+                                    params=params, Identifier=Identifier)
+        return response
 
 if __name__ == '__main__':
     pass

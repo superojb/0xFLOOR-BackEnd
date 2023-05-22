@@ -38,6 +38,16 @@ class OrderPaymentInfo(models.Model):
             raise exceptions.ValidationError(detail={"msg": "产品数量不可为小于1！"})
 
     @staticmethod
+    def GetOrderPaymentInfo(userId: str, orderId: str):
+        cursor = connection.cursor()
+        cursor.callproc('OrderPaymentInfo_GetInfo', (userId, orderId))
+        result = Mysql.dictFetchAll(cursor)[0]
+
+        if OrderPaymentInfo.verifyMysqlResult(result):
+            cursor.nextset()
+            return Mysql.dictFetchAll(cursor)[0]
+
+    @staticmethod
     def GetList(userId: str):
         cursor = connection.cursor()
         cursor.callproc('Order_GetList', (userId, ))

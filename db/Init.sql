@@ -5,7 +5,8 @@ INSERT OrderStatus (orderStatusId, name) VALUES
 (4, '处理中'),
 (5, '订单已完成'),
 (6, '已取消'),
-(7, '已关闭');
+(7, '已关闭'),
+(8, '发生错误');
 
 INSERT Currency (id, name, staticIncome, status, imgUrl, nickname) VALUES
 (1, 'Bitcoin', 0.0791, 1, 'https://www.bitdeer.com/cloud-mining/_nuxt/img/6a33374.png', 'BTC/BCH'),

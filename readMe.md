@@ -37,7 +37,7 @@ pip install python3-openid
 pip install pymysql
 pip install tronpy
 pip install loguru
-
+pip install django-crontab
 ```
 
 ### 数据库

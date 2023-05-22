@@ -4,6 +4,7 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`%` PROCEDURE `Order_Create`(
     p_userId INT(10),
     p_orderName CHAR(200),
+    p_revenueAddressId INT(10),
     p_ItemIdList TEXT,
     p_ItemNumList TEXT,
     p_ItemTypeList TEXT
@@ -13,6 +14,7 @@ CREATE DEFINER=`root`@`%` PROCEDURE `Order_Create`(
   code = 1 = 没有用户
   code = 2 = 错误的产品
   code = 3 = 产品数量不可为小于1
+  code = 4 = 沒有該收益地址
  */
 label:BEGIN
     DECLARE v_OrderId VARCHAR(200);
@@ -24,6 +26,11 @@ label:BEGIN
 
     IF NOT EXISTS(SELECT id FROM auth_user WHERE id = p_userId) THEN
         SELECT 1 AS code;
+        LEAVE label;
+    END IF ;
+
+    IF NOT EXISTS(SELECT id FROM RevenueAddress WHERE id = p_revenueAddressId AND userId = p_userId) THEN
+        SELECT 4 AS code;
         LEAVE label;
     END IF ;
 
@@ -72,6 +79,10 @@ label:BEGIN
 
         SET v_i = v_i+1;
     UNTIL v_i>v_Num END REPEAT;
+
+    -- 綁定收益地址
+    INSERT OrderRevenueBind (orderId, revenueAddressId, createTime)
+    VALUE (v_OrderId, p_revenueAddressId, NOW());
 
     COMMIT;
     SELECT 0 AS code;

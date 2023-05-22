@@ -15,7 +15,8 @@ class OrderRevenueBind(models.Model):
     订单收益绑定
     """
     orderId = models.CharField(primary_key=True, max_length=200, help_text="订单Id")
-    RevenueAddressId = models.IntegerField()
+    revenueAddressId = models.IntegerField()
+    createTime = models.DateTimeField(help_text="创建时间", default=timezone.now)
 
     class Meta:
         db_table = "OrderRevenueBind"

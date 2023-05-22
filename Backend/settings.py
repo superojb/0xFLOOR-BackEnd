@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'rest_auth',
     'rest_auth.registration',
-
+    'django_crontab',
     'drf_yasg',
 
     'MiningMachineProduct',
@@ -72,6 +72,7 @@ REST_SESSION_LOGIN = False
 # }
 
 MIDDLEWARE = [
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -139,9 +140,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'zh-hans'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
@@ -202,3 +203,16 @@ SWAGGER_SETTINGS = {
 
 # qq IP 定位API Key
 QQ_Map_API_Key = '2LEBZ-IV3K7-NJVXQ-PWKJY-UZLVH-JSBIP'
+
+# Tron 場設置
+company_Tron_address = 'TKxYDucF7RBMM1qH6rhpFStwkMRVD5ojjA'
+company_Tron_private_key_string = 'ca9e7b596a4df59c45b92b5c4ec788b35fac76e05ca435fc583d6662a34b8385'
+usdt_contract_address = 'TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj'
+usdt_TransferBandWidthRequired = 345
+Tron_URL = 'https://nile.trongrid.io/'
+Tron_network = 'nile'
+
+# 定时任务
+CRONJOBS = [
+    ('*/5 * * * * *', 'Order.Views.Frontend.PaymentAPIs.RegularConfirmationOfTransaction'),
+]

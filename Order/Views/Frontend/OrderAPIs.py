@@ -71,6 +71,7 @@ class OrderCreate(CreateAPIView):
             type = serializers.IntegerField(label='产品类别')
 
         orderName = serializers.CharField(label='订单名称')
+        RevenueAddressId = serializers.IntegerField(label='用戶的收益地址Id')
         orderItemList = serializers.ListSerializer(child=orderItemList_body(), label='订单内项目')
 
     serializer_class = OrderSerializers
@@ -94,7 +95,7 @@ class OrderCreate(CreateAPIView):
         :return:
         """
         verify = True
-        for Item in ['orderName', 'orderItemList']:
+        for Item in ['orderName', 'orderItemList', 'RevenueAddressId']:
             if Item not in self.request.data:
                 verify = False
                 break
@@ -124,6 +125,7 @@ class OrderCreate(CreateAPIView):
         data = {
             "userId": self.request.user.id,
             "orderName": request.data['orderName'],
+            "RevenueAddressId": request.data['RevenueAddressId'],
             "ItemIdList": ItemIdList,
             "ItemNumList": ItemNumList,
             "ItemTypeList": ItemTypeList,

@@ -35,8 +35,7 @@ class UserWallet(models.Model):
         rst = cursor.fetchone()
         return rst[0]
 
-
 class UserWalletSerializers(serializers.ModelSerializer):
     class Meta:
         model = UserWallet
-        fields = ['ip', 'address', 'createTime']
+        fields = "__all__"

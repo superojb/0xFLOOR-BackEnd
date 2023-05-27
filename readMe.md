@@ -38,6 +38,7 @@ pip install pymysql
 pip install tronpy
 pip install loguru
 pip install django-crontab
+
 ```
 
 ### 数据库
@@ -54,6 +55,10 @@ mysql
 docker exec -it mysql /bin/bash
 
 mysql -hlocalhost -uroot -p123456
+
+use mysql;
+update user set host = '%' where user = 'root';
+FLUSH PRIVILEGES
 
 # 两个docker 建立连接
 docker network create -d bridge network1
@@ -90,5 +95,16 @@ vi /usr/local/lib/python3.9/site-packages/allauth/utils.py
 
 ```shell
 python manage.py runserver 0.0.0.0:80
+```
+
+### 定时任务启动
+```shell
+apt-get update
+apt-get install cron
+service cron start
+service cron status
+
+python manage.py crontab remove
+python manage.py crontab add
 
 ```

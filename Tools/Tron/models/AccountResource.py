@@ -85,6 +85,10 @@ class AccountResource:
         AccountResource.__EnergyPrices = EnergyPrices
 
     @staticmethod
+    def GetEnergyPrices():
+        return AccountResource.__EnergyPrices
+
+    @staticmethod
     def GetFeeLimit(BandWidth: int, EnergyRequired: int) -> int:
         if AccountResource.__BandWidthPrices is None:
             raise Exception("未获取宽带单价")

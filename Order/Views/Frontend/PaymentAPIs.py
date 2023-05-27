@@ -17,10 +17,12 @@ from Order.models.OrderPaymentInfoModels import OrderPaymentInfoSerializers, Ord
 from Order.models.TronConfirmationOfTransactionModels import TronConfirmationOfTransaction
 from Order.models.TronIncomeRecordModels import TronIncomeRecord
 from Tools.Tron.TronManage import TronManage
+from Tools.Tron.models.AccountResource import AccountResource
 from User.models.UserWalletModels import UserWallet
 
 
 def RegularConfirmationOfTransaction():
+    print(AccountResource.GetEnergyPrices())
     print("执行定时确认成交")
 
 class getPaymentInfo(GenericAPIView):
@@ -88,7 +90,7 @@ class getPaymentInfo(GenericAPIView):
 
 
 class ConfirmPayment(GenericAPIView):
-    class getPaymentInfo_body(serializers.Serializer):
+    class getConfirmPayment_body(serializers.Serializer):
         orderId = serializers.CharField(label='訂單Id')
         status = serializers.CharField(label='訂單狀態')
         price = serializers.FloatField(label='訂單價錢')
@@ -105,7 +107,7 @@ class ConfirmPayment(GenericAPIView):
     swagger = {
         "operation_summary": "Frontend 確認訂單",
         "operation_description": "Frontend 確認訂單",
-        "request_body": getPaymentInfo_body,
+        "request_body": getConfirmPayment_body,
         "tags": swagger_tags,
     }
 

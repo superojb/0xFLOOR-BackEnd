@@ -240,7 +240,7 @@ class TronAPI:
         return response
 
     @staticmethod
-    def QueryTransaction(Identifier, TransactionId: str):
+    def QueryTransaction(Identifier, TransactionId: str) -> dict:
         params = {
             "value": TransactionId,
             "visible": True

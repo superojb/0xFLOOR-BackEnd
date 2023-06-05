@@ -11,4 +11,4 @@ from Backend.settings import ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_U
 
 
 def AccountConfirmEmail(request, key):
-    return HttpResponseRedirect(ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL + f'/{key}/')
+    return HttpResponseRedirect(ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL + f'?code={key}')

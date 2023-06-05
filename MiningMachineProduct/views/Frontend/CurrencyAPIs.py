@@ -6,14 +6,17 @@
 @Author  ：MoJeffrey
 @Date    ：2023/4/23 23:44 
 """
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics
 from rest_framework import permissions
-from MiningMachineProduct.models.CurrencyModels import Currency, CurrencySerializers
+from MiningMachineProduct.models.CurrencyModels import Currency, CurrencySerializers, CurrencyListFilter
 
 class CurrencyList(generics.ListAPIView):
     queryset = Currency.objects.all()
     serializer_class = CurrencySerializers
+    filterset_class = CurrencyListFilter
+    filter_backends = [DjangoFilterBackend]
     permission_classes = [permissions.AllowAny]
 
     swagger_tags = ['矿机产品']

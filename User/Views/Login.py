@@ -8,6 +8,7 @@
 """
 import json
 
+import django
 import requests
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -110,7 +111,10 @@ class Login(LoginView):
 
     @swagger_auto_schema(**swagger)
     def post(self, request, *args, **kwargs):
-        response = super(Login, self).post(request, *args, **kwargs)
+        try:
+            response = super(Login, self).post(request, *args, **kwargs)
+        except django.contrib.auth.models.User.DoesNotExist:
+            raise exceptions.ValidationError(detail={"msg": "密码或邮件不正确！"})
 
         user = TokenAuthentication().authenticate_credentials(response.data['key'])[0]
         ip = request.META.get('HTTP_X_FORWARDED_FOR') if request.META.get('HTTP_X_FORWARDED_FOR') else request.META.get('REMOTE_ADDR')

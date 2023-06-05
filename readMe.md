@@ -38,7 +38,9 @@ pip install pymysql
 pip install tronpy
 pip install loguru
 pip install django-crontab
-
+pip install django-cors-headers
+pip install django-filter
+pip install django-simpleui
 ```
 
 ### 数据库

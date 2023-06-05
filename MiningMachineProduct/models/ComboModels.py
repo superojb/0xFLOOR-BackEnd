@@ -9,13 +9,18 @@
 from django.db import models, connection
 from rest_framework import  serializers
 
+from MiningMachineProduct.models.CurrencyModels import Currency
+
 
 class Combo(models.Model):
     """
     套餐
     """
-    name = models.CharField(max_length=200, help_text="套餐名称")
-    currencyId = models.IntegerField(help_text="货币ID")
+    name = models.CharField(max_length=200, help_text="套餐名称", verbose_name='套餐名称')
+    currencyId = models.ForeignKey(Currency, on_delete=models.PROTECT, help_text="货币Id", verbose_name='货币', db_column='currencyId')
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         db_table = "Combo"

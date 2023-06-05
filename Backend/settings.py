@@ -31,12 +31,14 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'simpleui',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_filters',
 
     'rest_framework',
     'rest_framework.authtoken',
@@ -80,6 +82,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware'
 ]
 
 ROOT_URLCONF = 'Backend.urls'
@@ -172,7 +175,7 @@ DEFAULT_FROM_EMAIL = "Test"
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 ACCOUNT_EMAIL_REQUIRED = True
 # 邮箱认证重定向
-ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = 'https://www.baidu.com'
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = 'http://localhost:5173/login'
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = False
@@ -210,9 +213,36 @@ company_Tron_private_key_string = 'ca9e7b596a4df59c45b92b5c4ec788b35fac76e05ca43
 usdt_contract_address = 'TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj'
 usdt_TransferBandWidthRequired = 345
 Tron_URL = 'https://nile.trongrid.io/'
+Tron_Web = 'https://nile.tronscan.org/'
 Tron_network = 'nile'
 
 # 定时任务
 CRONJOBS = [
     ('*/5 * * * * *', 'Order.Views.Frontend.PaymentAPIs.RegularConfirmationOfTransaction'),
+]
+
+# 允许的来源（域），可以是特定的域名或通配符 *
+CORS_ORIGIN_ALLOW_ALL = True
+
+# 允许的请求方法，如 'GET'、'POST' 等
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS',
+]
+
+# 允许的请求头部
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
 ]

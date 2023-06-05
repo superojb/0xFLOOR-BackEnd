@@ -1,3 +1,4 @@
+import sys
 from django.contrib import admin
 
 from Order.models.OrderModels import Order
@@ -49,10 +50,11 @@ from Tools.Tron.TronAPI import TronAPI
 from Backend.settings import company_Tron_address
 
 # 获取Tron 基础内容
-response = TronAPI.GetAccountResource("Main", company_Tron_address)
-AccountResource(response)
-AccountResource.SetEnergyPrices(TronAPI.getEnergyPrices())
-AccountResource.SetBandWidthPrices(TronAPI.getBandWidthPrices())
+if "runserver" in sys.argv:
+    response = TronAPI.GetAccountResource("Main", company_Tron_address)
+    AccountResource(response)
+    AccountResource.SetEnergyPrices(TronAPI.getEnergyPrices())
+    AccountResource.SetBandWidthPrices(TronAPI.getBandWidthPrices())
 
-# 改变记录Log 方式
-TronAPI.Log = TronRequestLogs.Create
+    # 改变记录Log 方式
+    TronAPI.Log = TronRequestLogs.Create

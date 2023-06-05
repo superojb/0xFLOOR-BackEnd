@@ -14,7 +14,10 @@ class ComboModel(models.Model):
     """
     套餐模式
     """
-    name = models.CharField(max_length=200, help_text="模式名称")
+    name = models.CharField(max_length=200, help_text="模式名称", verbose_name='模式名称')
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         db_table = "ComboModel"

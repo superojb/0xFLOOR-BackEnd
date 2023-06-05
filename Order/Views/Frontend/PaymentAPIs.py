@@ -204,12 +204,7 @@ class ConfirmationOfTransaction(GenericAPIView):
         except Exception:
             return Response({'code': 3})
 
-        if T.transactionId == "IsRegister":
-            SUCCESS = True
-        else:
-            SUCCESS = self.ConfirmationOfTransaction(T)
-
-        if not SUCCESS:
+        if not self.ConfirmationOfTransaction(T):
             return Response({'code': 2})
 
         if T.type in [1, 2]:
@@ -221,9 +216,19 @@ class ConfirmationOfTransaction(GenericAPIView):
                 self.TransactionUSDT(result, NeedEnergy)
 
         elif T.type in [3, 4]:
+            data = {
+                "userId": self.request.user.id,
+                "orderId": request.data['orderId']
+            }
+            result = OrderPaymentInfo.GetOrderPaymentInfo(**data)
+
             # 取消代理
-            HaveUnDelegate = self.UnDelegate(request)
+            HaveUnDelegate = self.UnDelegate(result)
             if not HaveUnDelegate:
+                # 储存支付确定信息
+                TC = TronConfirmationOfTransaction.objects.get(orderId=request.data['orderId'], result=1, type=3)
+                OrderPaymentInfo.Create(TC.orderId, 1, result['price'], TC.transactionId)
+
                 print("转账已经完成，触发启动矿机")
 
         return Response({'code': 0})
@@ -247,6 +252,12 @@ class ConfirmationOfTransaction(GenericAPIView):
             raise exceptions.ValidationError(detail={"msg": "发生致命错误！"})
 
     def ConfirmationOfTransaction(self, T: TronConfirmationOfTransaction) -> bool:
+        if T.transactionId == "IsRegister":
+            T.response = "OK"
+            T.result = 1
+            T.save()
+            return True
+
         response = TronManage.ConfirmationOfTransaction(T.orderId, T.transactionId)
         if 'ret' in response and response['ret'][0]['contractRet'] == 'SUCCESS':
             T.response = response
@@ -262,7 +273,7 @@ class ConfirmationOfTransaction(GenericAPIView):
             TronIncomeRecord.Create(T.orderId, 3, TRX)
             TronIncomeRecord.Create(T.orderId, 4, USDT)
 
-        elif response is {}:
+        elif response == {}:
             return False
 
         else:
@@ -274,13 +285,7 @@ class ConfirmationOfTransaction(GenericAPIView):
 
         return SUCCESS
 
-    def UnDelegate(self, request):
-        data = {
-            "userId": self.request.user.id,
-            "orderId": request.data['orderId']
-        }
-        result = OrderPaymentInfo.GetOrderPaymentInfo(**data)
-
+    def UnDelegate(self, result: dict):
         UnDelegateCode, txId = TronManage.UnDelegate(result['orderId'], result['address'])
         if UnDelegateCode == 0:
             Order.UpdateStatus(result['orderId'], 8)

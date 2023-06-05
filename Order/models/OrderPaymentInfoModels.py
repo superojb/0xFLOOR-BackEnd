@@ -10,13 +10,15 @@ from django.db import models, connection
 from rest_framework import serializers, exceptions
 import django.utils.timezone as timezone
 from Tools.Mysql import Mysql
+from Tools.Tron.TronManage import TronManage
+
 
 class OrderPaymentInfo(models.Model):
     """
     订单付款信息
     """
     orderId = models.CharField(primary_key=True, max_length=200, help_text="订单Id")
-    type = models.IntegerField(help_text="订单名称")
+    type = models.IntegerField(help_text="支付虚拟币")
     price = models.DecimalField(help_text="价钱", max_digits=5, decimal_places=2)
     confirmationUrl = models.URLField(help_text="确认链URL")
     createTime = models.DateTimeField(help_text="订单创建时间", default=timezone.now)
@@ -48,23 +50,13 @@ class OrderPaymentInfo(models.Model):
             return Mysql.dictFetchAll(cursor)[0]
 
     @staticmethod
-    def GetList(userId: str):
-        cursor = connection.cursor()
-        cursor.callproc('Order_GetList', (userId, ))
-        result = Mysql.dictFetchAll(cursor)[0]
-
-        if OrderPaymentInfo.verifyMysqlResult(result):
-            cursor.nextset()
-            return Mysql.dictFetchAll(cursor)
-
-    @staticmethod
-    def Create(userId: str, orderName: str, ItemIdList: list, ItemNumList: list, ItemTypeList: list) -> dict:
-        cursor = connection.cursor()
-        cursor.callproc('Order_Create', (userId, orderName, ','.join(ItemIdList), ','.join(ItemNumList), ','.join(ItemTypeList)))
-        result = Mysql.dictFetchAll(cursor)[0]
-
-        if OrderPaymentInfo.verifyMysqlResult(result):
-            return result
+    def Create(orderId: str, type: int, price: float, transactionId: str):
+        O = OrderPaymentInfo()
+        O.orderId = orderId
+        O.type = type
+        O.price = price
+        O.confirmationUrl = TronManage.GetTransactionDetailsURL(transactionId)
+        O.save()
 
 class OrderPaymentInfoSerializers(serializers.ModelSerializer):
     class Meta:

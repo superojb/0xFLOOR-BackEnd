@@ -17,13 +17,14 @@ from Tools.Tron.TronAPI import TronAPI
 from Tools.Tron.models.AccountResource import AccountResource
 from Tools.Tron.models.Transaction import Transaction
 from Backend.settings import company_Tron_address, company_Tron_private_key_string, \
-    Tron_network, usdt_contract_address, usdt_TransferBandWidthRequired
+    Tron_network, usdt_contract_address, usdt_TransferBandWidthRequired, Tron_Web
 from decimal import Decimal
 
 
 class TronManage:
     tron = Tron(network=Tron_network)
     __Tron_API: TronAPI = TronAPI(tron)
+    __Tron_Web: str = Tron_Web
     __company_Tron_address = company_Tron_address
     __company_Tron_private_key_string = company_Tron_private_key_string
     __company_Tron_private_key = PrivateKey(bytes.fromhex(__company_Tron_private_key_string))
@@ -41,6 +42,10 @@ class TronManage:
     @staticmethod
     def Init():
         pass
+
+    @staticmethod
+    def GetTransactionDetailsURL(transactionId: str) -> str:
+        return TronManage.__Tron_Web + "#/transaction/" + transactionId
 
     @staticmethod
     def GetUSDTBalance(address: str):
@@ -94,7 +99,7 @@ class TronManage:
         return True, response['txid']
 
     @staticmethod
-    def ConfirmationOfTransaction(orderId, TxId: str):
+    def ConfirmationOfTransaction(orderId, TxId: str) -> dict:
         if TxId is None:
             return None
         return TronAPI.QueryTransaction(orderId, TxId)

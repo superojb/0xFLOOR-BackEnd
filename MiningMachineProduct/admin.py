@@ -12,28 +12,28 @@ from MiningMachineProduct.models.MiningMachineSpecificationModels import MiningM
 
 
 class ComboModelAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name']
+    list_display = ['name']
 
 class ComboAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'currencyId']
+    list_display = ['name', 'currencyId']
 
 class ComboPeriodAdmin(admin.ModelAdmin):
-    list_display = ['id', 'day']
+    list_display = ['Period']
 
 class CurrencyAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'status', 'staticIncome']
+    list_display = ['nickname', 'Logo', 'staticIncome', 'Status']
 
 class MiningMachineAdmin(admin.ModelAdmin):
-    list_display = ['id', 'comboId', 'name']
+    list_display = ['name', 'comboId']
 
 class MiningMachineProductAdmin(admin.ModelAdmin):
     list_display = ['id', 'comboId', 'comboPeriodId', 'comboModelId', 'miningMachineSpecificationId', 'price']
 
 class MiningMachineSettingAdmin(admin.ModelAdmin):
-    list_display = ['miningMachineSettingId', 'key', 'value']
+    list_display = ['key', 'value']
 
 class MiningMachineSpecificationAdmin(admin.ModelAdmin):
-    list_display = ['id', 'miningMachineId', 'specification']
+    list_display = ['specification', 'miningMachineId']
 
 admin.site.register(ComboModel, ComboModelAdmin)
 admin.site.register(Combo, ComboAdmin)

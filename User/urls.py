@@ -11,6 +11,7 @@ from User.Views.AccountConfirmEmail import AccountConfirmEmail
 from User.Views.Frontend.LoginLogsAPIs import LoginLogsList
 from User.Views.Frontend.RevenueAddressAPIs import RevenueAddressList, RevenueAddressAdd, RevenueAddressDelete, RevenueAddressUpdate
 from User.Views.Login import Login
+from User.Views.Frontend.UserAPIs import UserInfo
 
 
 urlpatterns = [
@@ -26,4 +27,6 @@ urlpatterns = [
     path('frontend/revenue-address-add/', RevenueAddressAdd.as_view(), name='revenue-address-add'),
     path('frontend/revenue-address-delete/', RevenueAddressDelete.as_view(), name='revenue-address-delete'),
     path('frontend/revenue-address-update/', RevenueAddressUpdate.as_view(), name='revenue-address-update'),
+
+    path('frontend/user-info/', UserInfo.as_view(), name='user-info'),
 ]

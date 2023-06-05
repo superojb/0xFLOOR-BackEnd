@@ -22,6 +22,10 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from Backend.settings import DEBUG
 
+admin.site.site_header = '0xFLOOR 后台'
+admin.site.site_title = '0xFLOOR 后台'
+admin.site.index_title = '0xFLOOR 后台'
+
 schema_view = get_schema_view(
     openapi.Info(
         title="0xFLOOR项目 API",
@@ -40,6 +44,7 @@ urlpatterns = [
     path('api/v1/mining-machine-product/', include('MiningMachineProduct.urls')),
     path('api/v1/order/', include('Order.urls'))
 ]
+
 if DEBUG:
     urlpatterns.append(path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'))
     urlpatterns.append(path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'))

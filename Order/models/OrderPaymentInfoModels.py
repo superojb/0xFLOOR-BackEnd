@@ -35,9 +35,7 @@ class OrderPaymentInfo(models.Model):
         elif result['code'] == 1:
             raise exceptions.ValidationError(detail={"msg": "没有该用户！"})
         elif result['code'] == 2:
-            raise exceptions.ValidationError(detail={"msg": "错误的产品！"})
-        elif result['code'] == 3:
-            raise exceptions.ValidationError(detail={"msg": "产品数量不可为小于1！"})
+            raise exceptions.ValidationError(detail={"msg": "訂單錯誤！"})
 
     @staticmethod
     def GetOrderPaymentInfo(userId: str, orderId: str):

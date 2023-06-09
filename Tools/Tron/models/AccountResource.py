@@ -103,6 +103,8 @@ class AccountResource:
         if AccountResource.__TotalEnergyLimit is None:
             raise Exception("未获取全网质押TRX")
 
+        print(AccountResource.__TotalEnergyLimit)
+        print(AccountResource.__TotalEnergyWeight)
         return int(1 / AccountResource.__TotalEnergyLimit * AccountResource.__TotalEnergyWeight * Energy * 1_000_000)
 
     @staticmethod

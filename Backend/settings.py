@@ -113,7 +113,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': '0xFLOOR',  # 数据库名称
-        'HOST': '127.0.0.1',  # 数据库地址，本机 ip 地址 127.0.0.1
+        'HOST': '172.18.0.1',  # 数据库地址，本机 ip 地址 127.0.0.1
         'PORT': 3306,  # 端口
         'USER': 'root',  # 数据库用户名
         'PASSWORD': 'Abc123++',  # 数据库密码
@@ -218,7 +218,7 @@ Tron_network = 'nile'
 
 # 定时任务
 CRONJOBS = [
-    ('*/5 * * * * *', 'Order.Views.Frontend.PaymentAPIs.RegularConfirmationOfTransaction'),
+    ('*/1 * * * *', 'Order.Views.Frontend.PaymentAPIs.RegularConfirmationOfTransaction', '>> /home/backend/RegularConfirmationOfTransaction.log')
 ]
 
 # 允许的来源（域），可以是特定的域名或通配符 *

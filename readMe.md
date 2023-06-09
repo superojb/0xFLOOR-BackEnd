@@ -96,6 +96,7 @@ vi /usr/local/lib/python3.9/site-packages/allauth/utils.py
 ```
 
 ```shell
+lsof -i:80
 python manage.py runserver 0.0.0.0:80
 ```
 

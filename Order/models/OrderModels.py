@@ -9,17 +9,23 @@
 from django.db import models, connection
 from rest_framework import serializers, exceptions
 import django.utils.timezone as timezone
+
+from Order.models.OrderStatusModels import OrderStatus
 from Tools.Mysql import Mysql
+from django.contrib.auth import get_user_model
 
 class Order(models.Model):
     """
     订单
     """
-    orderId = models.CharField(primary_key=True, max_length=200, help_text="订单Id")
-    orderName = models.CharField(max_length=200, help_text="订单名称")
-    userId = models.IntegerField(help_text="用户ID")
-    orderStatusId = models.IntegerField(help_text="订单状态Id")
-    createTime = models.DateTimeField(help_text="订单创建时间", default=timezone.now)
+    orderId = models.CharField(primary_key=True, max_length=200, help_text="订单Id", verbose_name='订单Id')
+    orderName = models.CharField(max_length=200, help_text="订单名称", verbose_name='订单名称')
+    userId = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, help_text="用户ID", verbose_name='用户', db_column='userId')
+    orderStatusId = models.ForeignKey(OrderStatus, on_delete=models.PROTECT, help_text="订单状态Id", verbose_name='状态', db_column='orderStatusId')
+    createTime = models.DateTimeField(help_text="订单创建时间", default=timezone.now, verbose_name='下单时间')
+
+    def __str__(self):
+        return self.orderId
 
     class Meta:
         db_table = "Order"
@@ -36,8 +42,6 @@ class Order(models.Model):
             raise exceptions.ValidationError(detail={"msg": "错误的产品！"})
         elif result['code'] == 3:
             raise exceptions.ValidationError(detail={"msg": "产品数量不可为小于1！"})
-        elif result['code'] == 4:
-            raise exceptions.ValidationError(detail={"msg": "沒有該收益地址！"})
 
     @staticmethod
     def GetList(userId: str):
@@ -52,19 +56,19 @@ class Order(models.Model):
     @staticmethod
     def UpdateStatus(orderId: str, statusId: int):
         O = Order.objects.get(orderId=orderId)
-        O.orderStatusId = statusId
+        O.orderStatusId = OrderStatus.objects.get(orderStatusId=statusId)
         O.save()
 
     @staticmethod
-    def Create(userId: str, orderName: str, RevenueAddressId: int,
-               ItemIdList: list, ItemNumList: list, ItemTypeList: list) -> dict:
+    def Create(userId: str, orderName: str,ItemIdList: list, ItemNumList: list, ItemTypeList: list) -> dict:
         cursor = connection.cursor()
-        cursor.callproc('Order_Create', (userId, orderName, RevenueAddressId,
-                                         ','.join(ItemIdList), ','.join(ItemNumList), ','.join(ItemTypeList)))
+        cursor.callproc('Order_Create', (userId, orderName, ','.join(ItemIdList),
+                        ','.join(ItemNumList), ','.join(ItemTypeList)))
         result = Mysql.dictFetchAll(cursor)[0]
 
-        if Order.verifyMysqlResult(result):
-            return result
+        Order.verifyMysqlResult(result)
+        cursor.nextset()
+        return Mysql.dictFetchAll(cursor)[0]
 
 class OrderSerializers(serializers.ModelSerializer):
     class Meta:

@@ -95,7 +95,7 @@ class OrderCreate(CreateAPIView):
         :return:
         """
         verify = True
-        for Item in ['orderName', 'orderItemList', 'RevenueAddressId']:
+        for Item in ['orderName', 'orderItemList']:
             if Item not in self.request.data:
                 verify = False
                 break
@@ -125,7 +125,6 @@ class OrderCreate(CreateAPIView):
         data = {
             "userId": self.request.user.id,
             "orderName": request.data['orderName'],
-            "RevenueAddressId": request.data['RevenueAddressId'],
             "ItemIdList": ItemIdList,
             "ItemNumList": ItemNumList,
             "ItemTypeList": ItemTypeList,

@@ -1,3 +1,5 @@
+CREATE DATABASE 0xFLOOR;
+
 INSERT OrderStatus (orderStatusId, name) VALUES
 (1, '未支付'),
 (2, '支付中'),

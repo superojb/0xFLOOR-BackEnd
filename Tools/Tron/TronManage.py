@@ -7,8 +7,6 @@
 @Date    ：2023/5/11 16:57 
 """
 import decimal
-import json
-from pprint import pprint
 
 from tronpy.keys import PrivateKey
 from tronpy import Tron
@@ -192,11 +190,12 @@ class TronManage:
         :param resource: ENERGY | BANDWIDTH
         :return:
         """
+        Sun = AccountResource.GetSumForEnergy(balance)
         data = {
             "Identifier": orderId,
             "sender_addr": TronManage.__company_Tron_address,
             "recipient_addr": address,
-            "balance": AccountResource.GetSumForEnergy(balance),
+            "balance": Sun if Sun > 1000_000 else 1000_000,
             "resource": resource
         }
 

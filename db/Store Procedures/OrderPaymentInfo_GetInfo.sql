@@ -23,8 +23,8 @@ label:BEGIN
 
     SELECT 0 AS code;
 
-    SELECT A.orderId, A.status, A.price, A.createTime, UW.address FROM (
-        SELECT O.orderId, OS.name AS status, SUM(B.price) AS price, O.createTime, O.userId
+    SELECT A.orderId, A.status, A.price, A.createTime, UW.address, A.orderName FROM (
+        SELECT O.orderId, OS.name AS status, SUM(B.price) AS price, O.createTime, O.userId, O.orderName
         FROM `Order` AS O
         LEFT JOIN OrderStatus AS OS ON O.orderStatusId = OS.orderStatusId
         LEFT JOIN (

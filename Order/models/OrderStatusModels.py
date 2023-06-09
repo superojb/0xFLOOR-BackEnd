@@ -17,6 +17,9 @@ class OrderStatus(models.Model):
     orderStatusId = models.AutoField(primary_key=True, help_text="订单状态Id")
     name = models.CharField(max_length=200, help_text="状态")
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         db_table = "OrderStatus"
         verbose_name = '订单状态'

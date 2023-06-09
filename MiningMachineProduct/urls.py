@@ -12,7 +12,7 @@ from MiningMachineProduct.views.Frontend.ComboModelAPIs import ComboModelList
 from MiningMachineProduct.views.Frontend.ComboPeriodAPIs import ComboPeriodList
 from MiningMachineProduct.views.Frontend.CurrencyAPIs import CurrencyList
 from MiningMachineProduct.views.Frontend.MiningMachineAPIs import MiningMachineList
-from MiningMachineProduct.views.Frontend.MiningMachineProducAPIs import MiningMachineProductList
+from MiningMachineProduct.views.Frontend.MiningMachineProducAPIs import MiningMachineProductList, GetPrdocut
 from MiningMachineProduct.views.Frontend.MiningMachineSpecificationAPIs import MiningMachineSpecificationList
 
 
@@ -24,5 +24,6 @@ urlpatterns = [
     url('frontend/mining-machine-list/', MiningMachineList.as_view(), name='mining-machine-list'),
     url('frontend/mining-machine-product-list/', MiningMachineProductList.as_view(), name='mining-machine-product-list'),
     url('frontend/mining-machine-specification-list/', MiningMachineSpecificationList.as_view(), name='mining-machine-specification-list'),
+    url('frontend/get-product/', GetPrdocut.as_view(), name='get-product'),
 
 ]

@@ -6,27 +6,46 @@
 @Author  ：MoJeffrey
 @Date    ：2023/5/19 19:10 
 """
+from datetime import datetime
+import traceback
+
+import requests
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.authentication import TokenAuthentication
 from rest_framework import permissions, exceptions, serializers
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
+from Backend.settings import RegularConfirmationOfTransaction_Log, company_Tron_address
 from Order.models.MinerBindingModels import MinerBinding
 from Order.models.OrderModels import Order
 from Order.models.OrderPaymentInfoModels import OrderPaymentInfoSerializers, OrderPaymentInfo
 from Order.models.TronConfirmationOfTransactionModels import TronConfirmationOfTransaction
 from Order.models.TronIncomeRecordModels import TronIncomeRecord
+from Order.models.TronRequestLogsModels import TronRequestLogs
+from Tools.Tron.TronAPI import TronAPI
 from Tools.Tron.TronManage import TronManage
+from Tools.Tron.models.AccountResource import AccountResource
 from User.models.UserWalletModels import UserWallet
 from loguru import logger
 
 
 def RegularConfirmationOfTransaction():
-    logger.info("开始执行定时确认成交")
-    ConfirmationOfTransaction().Run()
-    logger.info("完成执行定时确认成交")
+    logger.add(RegularConfirmationOfTransaction_Log, level="INFO", rotation="1 week")
+    logger.info("开始")
 
+    try:
+        response = TronAPI.GetAccountResource("Main", company_Tron_address)
+        AccountResource(response)
+        AccountResource.SetEnergyPrices(TronAPI.getEnergyPrices())
+        AccountResource.SetBandWidthPrices(TronAPI.getBandWidthPrices())
+        TronAPI.Log = TronRequestLogs.Create
+        ConfirmationOfTransaction().Run()
+
+    except Exception as e:
+        logger.info('发生错误，错误信息为：', e)
+        logger.info(traceback.format_exc())
+        return
 
 class getPaymentInfo(GenericAPIView):
     class getPaymentInfo_body(serializers.Serializer):

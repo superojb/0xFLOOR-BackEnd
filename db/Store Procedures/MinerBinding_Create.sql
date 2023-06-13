@@ -28,12 +28,12 @@ label:BEGIN
     LEFT JOIN `Order` AS O ON OI.orderId = O.orderId
     WHERE OI.orderId = p_orderId AND OI.productTypeId = 1;
 
-    SET v_i = 0;
+    SET v_i = 1;
     REPEAT
         INSERT IGNORE MinerBinding
             (MinerBindingId, minerAccount, miningStatusId, createTime, updateTime, miningMachineProductId, orderId, userId)
         VALUE
-            (CONCAT(p_orderId, '-', v_ItemNum), NULL, 1, NOW(), NOW(), v_ProductId, p_orderId, v_UserId);
+            (CONCAT(p_orderId, '-', v_i), NULL, 1, NOW(), NOW(), v_ProductId, p_orderId, v_UserId);
 
         SET v_i = v_i+1;
     UNTIL v_i>v_ItemNum END REPEAT;

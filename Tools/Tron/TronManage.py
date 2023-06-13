@@ -184,13 +184,15 @@ class TronManage:
     @staticmethod
     def Delegate(orderId, address, balance, resource: str):
         """
+        balance 有时运算数位问题差1
+        下次比对会少1 避免代理两次
         :param orderId:
         :param address:
         :param balance:
         :param resource: ENERGY | BANDWIDTH
         :return:
         """
-        Sun = AccountResource.GetSumForEnergy(balance)
+        Sun = AccountResource.GetSumForEnergy(balance + 1)
         data = {
             "Identifier": orderId,
             "sender_addr": TronManage.__company_Tron_address,

@@ -6,10 +6,7 @@
 @Author  ：MoJeffrey
 @Date    ：2023/5/28 6:52 
 """
+from datetime import datetime
 
-a = {}
-
-if a == {}:
-    print("进入一")
-    if a:
-        print(a)
+current_time = datetime.now()
+print(current_time)

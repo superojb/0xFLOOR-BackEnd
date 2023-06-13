@@ -16,7 +16,7 @@ from Order.models.OrderStatusModels import OrderStatus
 from Tools.Mysql import Mysql
 from django.contrib.auth import get_user_model
 
-miningStatus_CHOICES = ((1, '等待上链'),(2, '代理'),(3, '工作中'),(5, '暂停中'), (4, '已完成'))
+miningStatus_CHOICES = ((1, '等待上链'),(2, '待激活'),(3, '工作中'),(5, '暂停中'), (4, '已完成'))
 
 class MinerBinding(models.Model):
     """

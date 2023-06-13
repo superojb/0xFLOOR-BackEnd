@@ -33,11 +33,18 @@ class TronAPI:
         :param Identifier: 识别码。为了追踪日志
         :return:
         """
+        response = None
         kwargs = {
             "url": URL,
             "json": params,
         }
-        response = requests.post(**kwargs) if Post else requests.get(**kwargs)
+        while True:
+            try:
+                response = requests.post(**kwargs) if Post else requests.get(**kwargs)
+                break
+            except requests.exceptions.ConnectionError:
+                logger.info("requests.exceptions.ConnectionError Retry")
+                continue
         if response.status_code == 200:
             responseData = response.json()
             TronAPI.Log(URL, Identifier, params, responseData, 1)

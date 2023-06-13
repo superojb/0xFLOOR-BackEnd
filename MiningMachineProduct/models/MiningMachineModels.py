@@ -7,7 +7,8 @@
 @Date    ：2023/4/23 23:30 
 """
 from django.db import models, connection
-from rest_framework import  serializers
+from rest_framework import serializers, exceptions
+from Tools.Mysql import Mysql
 
 from MiningMachineProduct.models.ComboModels import Combo
 
@@ -28,14 +29,23 @@ class MiningMachine(models.Model):
         verbose_name_plural = '矿机'
 
     @staticmethod
-    def GetProductCount(InquireSQL):
+    def verifyMysqlResult(result: dict) -> bool:
+        if result['code'] == 0:
+            return True
+        elif result['code'] == 1:
+            raise exceptions.ValidationError(detail={"msg": "没有该用户！"})
+        elif result['code'] == 2:
+            raise exceptions.ValidationError(detail={"msg": "没有该货币！"})
+
+    @staticmethod
+    def UserCloudPowerList_MinerList(userId: int, currencyId: int) -> dict:
         cursor = connection.cursor()
-        CountSQL = "SELECT count(*) FROM (" + InquireSQL + ") AS A"
+        cursor.callproc('UserCloudPowerList_MinerList', (userId, currencyId))
+        result = Mysql.dictFetchAll(cursor)[0]
 
-        cursor.execute(CountSQL)
-        rst = cursor.fetchone()
-        return rst[0]
-
+        if MiningMachine.verifyMysqlResult(result):
+            cursor.nextset()
+            return Mysql.dictFetchAll(cursor)
 
 class MiningMachineSerializers(serializers.ModelSerializer):
     class Meta:

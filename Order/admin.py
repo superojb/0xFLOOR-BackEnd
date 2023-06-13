@@ -40,6 +40,11 @@ class MinerBindingAdmin(admin.ModelAdmin):
     search_fields = ("orderId",)
     readonly_fields = ("MinerBindingId", "orderId", "miningMachineProductId", "userId", "miningStatusId", "updateTime", "createTime")
 
+    def save_model(self, request, obj, form, change):
+        obj.miningStatusId = 2
+        obj.minerAccount = form.cleaned_data['minerAccount']
+        obj.save()
+
 admin.site.register(Order, OrderAdmin)
 admin.site.register(OrderItem, OrderItemAdmin)
 admin.site.register(OrderPaymentInfo, OrderPaymentInfoAdmin)

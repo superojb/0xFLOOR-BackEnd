@@ -218,8 +218,9 @@ Tron_network = 'nile'
 
 # 定时任务
 CRONJOBS = [
-    ('*/1 * * * *', 'Order.Views.Frontend.PaymentAPIs.RegularConfirmationOfTransaction', '>> /home/backend/RegularConfirmationOfTransaction.log')
+    ('*/1 * * * *', 'Order.Views.Frontend.PaymentAPIs.RegularConfirmationOfTransaction')
 ]
+RegularConfirmationOfTransaction_Log = '/home/backend/RegularConfirmationOfTransaction.log'
 
 # 允许的来源（域），可以是特定的域名或通配符 *
 CORS_ORIGIN_ALLOW_ALL = True

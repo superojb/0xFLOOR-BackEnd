@@ -8,8 +8,9 @@
 """
 import django_filters
 from django.db import models, connection
-from rest_framework import  serializers
+from rest_framework import serializers, exceptions
 from django.utils.html import format_html
+from Tools.Mysql import Mysql
 
 STATUS_CHOICES = ((1, '开启'),(0, '关闭'),(2, '禁售'),)
 
@@ -51,6 +52,23 @@ class Currency(models.Model):
         return format_html(f'<img style="height: 50px;width: 50px;margin: auto 10px;border-radius: 50px;" src="{ self.imgUrl }"/>')
 
     Logo.short_description = "Logo"
+
+    @staticmethod
+    def verifyMysqlResult(result: dict) -> bool:
+        if result['code'] == 0:
+            return True
+        elif result['code'] == 1:
+            raise exceptions.ValidationError(detail={"msg": "没有该用户！"})
+
+    @staticmethod
+    def UserCloudPowerList_CurrencyList(userId: int) -> dict:
+        cursor = connection.cursor()
+        cursor.callproc('UserCloudPowerList_CurrencyList', (userId,))
+        result = Mysql.dictFetchAll(cursor)[0]
+
+        if Currency.verifyMysqlResult(result):
+            cursor.nextset()
+            return Mysql.dictFetchAll(cursor)
 
     @staticmethod
     def GetProductCount(InquireSQL):

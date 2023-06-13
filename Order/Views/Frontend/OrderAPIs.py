@@ -10,7 +10,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.response import Response
 from rest_framework import permissions, exceptions, serializers
-from rest_framework.generics import CreateAPIView, ListAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, GenericAPIView
 from Order.models.OrderModels import Order, OrderSerializers
 from Tools.ResponseSchema import ResponseSchemaMsg, ResponseSchemaCode
 from drf_yasg import openapi
@@ -132,3 +132,41 @@ class OrderCreate(CreateAPIView):
         result = Order.Create(**data)
         return Response(result)
 
+
+class OrderDetails(GenericAPIView):
+
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    allowed_methods = ['POST']
+
+    swagger_tags = ['订单管理']
+    swagger = {
+        "operation_summary": "Frontend 获取订单详情",
+        "operation_description": "Frontend 获取订单详情",
+        "tags": swagger_tags,
+    }
+
+    def verifyRequest(self):
+        """
+        :return:
+        """
+        verify = True
+        for Item in ['orderId']:
+            if Item not in self.request.data:
+                verify = False
+                break
+
+        if verify:
+            return
+        else:
+            raise exceptions.ValidationError(detail={"msg": "缺少必要参数！"})
+
+    @swagger_auto_schema(**swagger)
+    def post(self, request, *args, **kwargs):
+        self.verifyRequest()
+        data = {
+            "userId": self.request.user.id,
+            "orderId": request.data['orderId']
+        }
+        result = Order.GetDetails(**data)
+        return Response(result)

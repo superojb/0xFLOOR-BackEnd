@@ -6,6 +6,8 @@
 @Author  ：MoJeffrey
 @Date    ：2023/4/23 23:30 
 """
+from typing import List
+
 from django.db import models, connection
 from rest_framework import serializers, exceptions
 import django.utils.timezone as timezone
@@ -13,6 +15,14 @@ import django.utils.timezone as timezone
 from Order.models.OrderStatusModels import OrderStatus
 from Tools.Mysql import Mysql
 from django.contrib.auth import get_user_model
+
+class OrderDetails:
+    orderInfo: dict = None
+    productList: List[dict] = None
+    paymentInfo: dict = None
+
+    def GetDict(self):
+        return self.__dict__
 
 class Order(models.Model):
     """
@@ -42,6 +52,8 @@ class Order(models.Model):
             raise exceptions.ValidationError(detail={"msg": "错误的产品！"})
         elif result['code'] == 3:
             raise exceptions.ValidationError(detail={"msg": "产品数量不可为小于1！"})
+        elif result['code'] == 4:
+            raise exceptions.ValidationError(detail={"msg": "没有该订单"})
 
     @staticmethod
     def GetList(userId: str):
@@ -69,6 +81,27 @@ class Order(models.Model):
         Order.verifyMysqlResult(result)
         cursor.nextset()
         return Mysql.dictFetchAll(cursor)[0]
+
+    @staticmethod
+    def GetDetails(orderId: str, userId: int) -> dict:
+        cursor = connection.cursor()
+        cursor.callproc('Order_GetDetails', (orderId, userId))
+        result = Mysql.dictFetchAll(cursor)[0]
+        Order.verifyMysqlResult(result)
+
+        Obj = OrderDetails()
+
+        cursor.nextset()
+        Obj.orderInfo = Mysql.dictFetchAll(cursor)[0]
+
+        cursor.nextset()
+        Obj.productList = Mysql.dictFetchAll(cursor)
+
+        cursor.nextset()
+        Obj.paymentInfo = Mysql.dictFetchAll(cursor)[0]
+
+        return Obj.GetDict()
+
 
 class OrderSerializers(serializers.ModelSerializer):
     class Meta:

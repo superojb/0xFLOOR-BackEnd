@@ -26,6 +26,7 @@ class TronRequestLogs(models.Model):
         db_table = "TronRequestLogs"
         verbose_name = 'Tron 场请求Logs'
         verbose_name_plural = 'Tron 场请求Logs'
+        ordering = ['-createTime']
 
     @staticmethod
     def verifyMysqlResult(result: dict) -> bool:

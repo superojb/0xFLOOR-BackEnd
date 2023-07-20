@@ -6,14 +6,31 @@
 @Author  ：MoJeffrey
 @Date    ：2023/4/23 23:44 
 """
+import traceback
+
+from Backend.settings import RegularCheckTimeout_Log
 from drf_yasg.utils import swagger_auto_schema
+from loguru import logger
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.response import Response
 from rest_framework import permissions, exceptions, serializers
 from rest_framework.generics import CreateAPIView, ListAPIView, GenericAPIView
 from Order.models.OrderModels import Order, OrderSerializers
 from Tools.ResponseSchema import ResponseSchemaMsg, ResponseSchemaCode
-from drf_yasg import openapi
+
+def RegularCheckTimeout():
+    """
+    定期確認質押
+    :return:
+    """
+    logger.add(RegularCheckTimeout_Log, level="INFO", rotation="1 week")
+    logger.info("進入")
+    try:
+        Order.CheckTimeout()
+    except Exception as e:
+        logger.info('发生错误，错误信息为：', e)
+        logger.info(traceback.format_exc())
+        return
 
 class OrderItemObject:
     id: int = None
@@ -36,7 +53,6 @@ class OrderItemObject:
 
         return True
 
-
 class OrderList(ListAPIView):
     serializer_class = OrderSerializers
     authentication_classes = [TokenAuthentication]
@@ -53,14 +69,29 @@ class OrderList(ListAPIView):
         """
         :return:
         """
-        return
+        verify = True
+        for Item in ['page', 'orderType', 'limit']:
+            if Item not in self.request.query_params:
+                verify = False
+                break
+
+        if verify:
+            return
+        else:
+            raise exceptions.ValidationError(detail={"msg": "缺少必要参数！"})
 
     @swagger_auto_schema(**swagger)
     def get(self, request, *args, **kwargs):
         self.verifyRequest()
-        result = Order.GetList(self.request.user.id)
-        return Response(result)
+        data = {
+            "userId": self.request.user.id,
+            "orderType": request.query_params['orderType'],
+            "page": request.query_params['page'],
+            "limit": request.query_params['limit']
+        }
 
+        result = Order.GetList(**data)
+        return Response(result)
 
 class OrderCreate(CreateAPIView):
 
@@ -95,7 +126,7 @@ class OrderCreate(CreateAPIView):
         :return:
         """
         verify = True
-        for Item in ['orderName', 'orderItemList']:
+        for Item in ['orderName', 'orderItemList', 'pledgeProfitRatioId']:
             if Item not in self.request.data:
                 verify = False
                 break
@@ -128,10 +159,10 @@ class OrderCreate(CreateAPIView):
             "ItemIdList": ItemIdList,
             "ItemNumList": ItemNumList,
             "ItemTypeList": ItemTypeList,
+            "pledgeProfitRatioId": request.data['pledgeProfitRatioId']
         }
         result = Order.Create(**data)
         return Response(result)
-
 
 class OrderDetails(GenericAPIView):
 

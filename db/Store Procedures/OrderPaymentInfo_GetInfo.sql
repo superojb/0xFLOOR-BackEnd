@@ -9,8 +9,11 @@ CREATE DEFINER=`root`@`%` PROCEDURE `OrderPaymentInfo_GetInfo`(
   code = 0 = OK
   code = 1 = 没有用户
   code = 2 = 訂單錯誤
+  code = 3 = 不支持USDT!
  */
 label:BEGIN
+    DECLARE v_USDT_currencyId INT(10);
+
     IF NOT EXISTS(SELECT id FROM auth_user WHERE id = p_userId) THEN
         SELECT 1 AS code;
         LEAVE label;
@@ -18,6 +21,12 @@ label:BEGIN
 
     IF NOT EXISTS(SELECT orderId FROM `Order` WHERE orderId = p_OrderId AND userId = p_userId) THEN
         SELECT 2 AS code;
+        LEAVE label;
+    END IF ;
+
+    SELECT currencyId INTO v_USDT_currencyId FROM Currency WHERE name = 'USDT' LIMIT 1;
+    IF v_USDT_currencyId IS NULL THEN
+        SELECT 3 AS code;
         LEAVE label;
     END IF ;
 
@@ -35,6 +44,6 @@ label:BEGIN
         WHERE O.orderId = p_OrderId
         GROUP BY O.orderId
     ) AS A
-    LEFT JOIN UserWallet AS UW ON A.userId = UW.userId AND UW.type = 1;
+    LEFT JOIN UserWallet AS UW ON A.userId = UW.userId AND UW.currencyId = v_USDT_currencyId;
 END ;;
 DELIMITER ;

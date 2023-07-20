@@ -218,9 +218,15 @@ Tron_network = 'nile'
 
 # 定时任务
 CRONJOBS = [
-    ('*/1 * * * *', 'Order.Views.Frontend.PaymentAPIs.RegularConfirmationOfTransaction')
+    ('*/1 * * * *', 'Order.Views.Frontend.PaymentAPIs.RegularConfirmationOfTransaction'),
+    ('*/1 * * * *', 'Order.Views.Frontend.MinerBindingAPIs.RegularConfirmationPledge'),
+    ('*/1 * * * *', 'Order.Views.Frontend.OrderAPIs.RegularCheckTimeout'),
+    ('*/1 * * * *', 'Order.Views.Frontend.MinerBindingAPIs.RegularSettlement'),
 ]
 RegularConfirmationOfTransaction_Log = '/home/backend/RegularConfirmationOfTransaction.log'
+RegularConfirmationPledge_Log = '/home/backend/RegularConfirmationPledge.log'
+RegularCheckTimeout_Log = '/home/backend/RegularCheckTimeout.log'
+RegularSettlement_Log = '/home/backend/RegularSettlement.log'
 
 # 允许的来源（域），可以是特定的域名或通配符 *
 CORS_ORIGIN_ALLOW_ALL = True
@@ -247,3 +253,8 @@ CORS_ALLOW_HEADERS = [
     'x-csrftoken',
     'x-requested-with',
 ]
+
+# Khala 设置
+Khala_URL = 'http://139.155.156.47:3000/'
+PolkaholicAPI_URL = 'https://api.polkaholic.io/'
+company_khala_address = '44D2M7SfLksQr2cCGwW772UQ92awe8gEdyGprQVQE4Ui8bjd'

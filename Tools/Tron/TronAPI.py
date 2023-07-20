@@ -11,18 +11,16 @@ from tronpy.abi import trx_abi
 from tronpy import Tron
 from tronpy.keys import PrivateKey
 from loguru import logger
-from Backend.settings import Tron_URL
+from Backend.settings import Tron_URL, usdt_contract_address
 from Tools.Tron.Exception.TronAPIRequestError import TronAPIRequestError
 
 class TronAPI:
+    __usdt_contract_address = usdt_contract_address
     __base_url = Tron_URL
-    __USDT_contract_address = 'TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj'
     __client = None
-    __contract = None
 
     def __init__(self, tron: Tron):
         TronAPI.__client = tron
-        TronAPI.__contract = TronAPI.__client.get_contract(TronAPI.__USDT_contract_address)
 
     @staticmethod
     def Requests(URL: str, params: dict, Identifier: str, Post: bool = True) -> dict:
@@ -78,7 +76,7 @@ class TronAPI:
         raw = trx_abi.encode_single("(address,uint256)", [recipient_addr, amount])
         params = {
             "owner_address": sender_addr,
-            "contract_address": TronAPI.__USDT_contract_address,
+            "contract_address": TronAPI.__usdt_contract_address,
             "function_selector": "transfer(address,uint256)",
             "parameter": raw.hex(),
             "visible": True

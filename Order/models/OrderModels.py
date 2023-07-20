@@ -16,6 +16,11 @@ from Order.models.OrderStatusModels import OrderStatus
 from Tools.Mysql import Mysql
 from django.contrib.auth import get_user_model
 
+Order_Type = (
+    (1, '礦機'),
+    (2, '電費'),
+    (3, '維修單'))
+
 class OrderDetails:
     orderInfo: dict = None
     productList: List[dict] = None
@@ -27,12 +32,16 @@ class OrderDetails:
 class Order(models.Model):
     """
     订单
+
+    note = 記錄內容 發生錯誤或者 其他的時候記錄
     """
     orderId = models.CharField(primary_key=True, max_length=200, help_text="订单Id", verbose_name='订单Id')
+    type = models.IntegerField(help_text="訂單類型", choices=Order_Type)
     orderName = models.CharField(max_length=200, help_text="订单名称", verbose_name='订单名称')
     userId = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, help_text="用户ID", verbose_name='用户', db_column='userId')
     orderStatusId = models.ForeignKey(OrderStatus, on_delete=models.PROTECT, help_text="订单状态Id", verbose_name='状态', db_column='orderStatusId')
     createTime = models.DateTimeField(help_text="订单创建时间", default=timezone.now, verbose_name='下单时间')
+    note = models.TextField()
 
     def __str__(self):
         return self.orderId
@@ -54,16 +63,23 @@ class Order(models.Model):
             raise exceptions.ValidationError(detail={"msg": "产品数量不可为小于1！"})
         elif result['code'] == 4:
             raise exceptions.ValidationError(detail={"msg": "没有该订单"})
+        elif result['code'] == 5:
+            raise exceptions.ValidationError(detail={"msg": "质押选择错误！"})
 
     @staticmethod
-    def GetList(userId: str):
+    def GetList(userId: str, orderType: int, page: int, limit: int):
         cursor = connection.cursor()
-        cursor.callproc('Order_GetList', (userId, ))
+        cursor.callproc('Order_GetList', (userId, orderType, page, limit))
         result = Mysql.dictFetchAll(cursor)[0]
+        Order.verifyMysqlResult(result)
 
-        if Order.verifyMysqlResult(result):
-            cursor.nextset()
-            return Mysql.dictFetchAll(cursor)
+        cursor.nextset()
+        Obj = {}
+        Obj['totalRows'] = Mysql.dictFetchAll(cursor)[0]['totalRows']
+
+        cursor.nextset()
+        Obj['list'] = Mysql.dictFetchAll(cursor)
+        return Obj
 
     @staticmethod
     def UpdateStatus(orderId: str, statusId: int):
@@ -72,10 +88,10 @@ class Order(models.Model):
         O.save()
 
     @staticmethod
-    def Create(userId: str, orderName: str,ItemIdList: list, ItemNumList: list, ItemTypeList: list) -> dict:
+    def Create(userId: str, orderName: str,ItemIdList: list, ItemNumList: list, ItemTypeList: list, pledgeProfitRatioId: int) -> dict:
         cursor = connection.cursor()
         cursor.callproc('Order_Create', (userId, orderName, ','.join(ItemIdList),
-                        ','.join(ItemNumList), ','.join(ItemTypeList)))
+                        ','.join(ItemNumList), ','.join(ItemTypeList), pledgeProfitRatioId))
         result = Mysql.dictFetchAll(cursor)[0]
 
         Order.verifyMysqlResult(result)
@@ -102,6 +118,12 @@ class Order(models.Model):
 
         return Obj.GetDict()
 
+    @staticmethod
+    def CheckTimeout():
+        cursor = connection.cursor()
+        cursor.callproc('Order_CheckTimeout', ())
+        cursor.nextset()
+        return
 
 class OrderSerializers(serializers.ModelSerializer):
     class Meta:

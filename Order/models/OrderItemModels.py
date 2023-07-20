@@ -10,16 +10,25 @@ from django.db import models, connection
 from rest_framework import  serializers
 import django.utils.timezone as timezone
 
+
+OrderItem_productTypeId = (
+    (1, '礦機'),
+    (2, '電費'))
+
+
 class OrderItem(models.Model):
     """
     订单中的项目
+
+    initiationAssociateId 用於續加的電費 礦機編號
     """
     orderItemId = models.AutoField(primary_key=True, help_text="订单项目Id")
     orderId = models.CharField(max_length=200, help_text="订单Id")
     productId = models.IntegerField(help_text="产品Id")
-    productTypeId = models.IntegerField(help_text="产品类别Id")
+    productTypeId = models.IntegerField(help_text="产品类别Id", choices=OrderItem_productTypeId)
     num = models.IntegerField(help_text="数量")
     price = models.DecimalField(help_text="价钱", max_digits=5, decimal_places=2)
+    initiationAssociateId = models.CharField(max_length=200, help_text="关联ID")
 
     class Meta:
         db_table = "OrderItem"

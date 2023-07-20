@@ -11,6 +11,8 @@ CREATE DEFINER=`root`@`%` PROCEDURE `UserCloudPowerList_MinerList`(
   code = 2 = 没有该货币
  */
 label:BEGIN
+    DECLARE v_AllTotalRevenue FLOAT DEFAULT 0;
+
     IF NOT EXISTS(SELECT id FROM auth_user WHERE id = p_UserId) THEN
         SELECT 1 AS code;
         LEAVE label;
@@ -23,11 +25,13 @@ label:BEGIN
 
     SELECT 0 AS code;
 
+    DROP TEMPORARY TABLE IF EXISTS MinerList;
+    CREATE TEMPORARY TABLE MinerList
     SELECT
         MB.MinerBindingId,
         MB.orderId,
         CONCAT(MM.name, '(', MMS.specification, '/', IF(CP.day = 0, '永久', CONCAT(CP.day, '天')), ')') AS name,
-        ROUND(0.00000000, 8) AS output,
+        MB.TotalRevenue AS output,
         MB.miningStatusId
     FROM MinerBinding AS MB
     LEFT JOIN MiningMachineProduct AS MMP ON MB.miningMachineProductId = MMP.id
@@ -37,6 +41,24 @@ label:BEGIN
     LEFT JOIN Combo AS C ON MMP.comboId = C.id
     WHERE MB.userId = p_UserId AND C.currencyId = p_currencyId
     ORDER BY MB.createTime DESC;
+
+    SELECT
+        MinerBindingId,
+        orderId,
+        name,
+        output,
+        miningStatusId
+    FROM MinerList;
+
+    SELECT SUM(output) INTO v_AllTotalRevenue FROM MinerList;
+
+    SELECT
+        SUM(MER.UserRevenue) AS previousAllTotalRevenue, v_AllTotalRevenue AS AllTotalRevenue
+    FROM MinerEarningsRecords AS MER
+    INNER JOIN MiningMachineProduct AS MMP ON MER.miningMachineProductId = MMP.id
+    INNER JOIN Combo AS C ON MMP.comboId = C.id
+    INNER JOIN Currency AS C2 ON C.currencyId = C2.currencyId
+    WHERE C2.currencyId = p_currencyId AND MER.createTime = DATE_SUB(DATE(NOW()), INTERVAL 1 DAY) AND MER.userId = p_UserId;
 
 END ;;
 DELIMITER ;

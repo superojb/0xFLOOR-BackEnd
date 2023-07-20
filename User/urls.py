@@ -11,7 +11,7 @@ from User.Views.AccountConfirmEmail import AccountConfirmEmail
 from User.Views.Frontend.LoginLogsAPIs import LoginLogsList
 from User.Views.Frontend.RevenueAddressAPIs import RevenueAddressList, RevenueAddressAdd, RevenueAddressDelete, RevenueAddressUpdate
 from User.Views.Login import Login
-from User.Views.Frontend.UserAPIs import UserInfo
+from User.Views.Frontend.UserAPIs import UserInfo, GetWallet, CashOutApply
 
 
 urlpatterns = [
@@ -29,4 +29,6 @@ urlpatterns = [
     path('frontend/revenue-address-update/', RevenueAddressUpdate.as_view(), name='revenue-address-update'),
 
     path('frontend/user-info/', UserInfo.as_view(), name='user-info'),
+    path('frontend/get_wallet/', GetWallet.as_view(), name='get_wallet'),
+    path('frontend/cash_out_apply/', CashOutApply.as_view(), name='cash_out_apply'),
 ]

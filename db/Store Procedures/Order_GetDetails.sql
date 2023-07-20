@@ -23,7 +23,7 @@ label:BEGIN
 
     SELECT 0 AS code;
 
-    SELECT orderId, createTime, OS.name AS status, NULL AS `explain`
+    SELECT orderId, createTime, OS.name AS status, note AS `explain`
     FROM `Order` AS O
     INNER JOIN OrderStatus AS OS ON O.orderStatusId = OS.orderStatusId
     WHERE orderId = p_orderId;
@@ -33,7 +33,8 @@ label:BEGIN
         IF(CP.day = 0, '永久', CONCAT(CP.day)) AS day,
         currency.nickname AS currency,
         O.num,
-        O.price
+        O.price,
+        O.initiationAssociateId
     FROM OrderItem AS O
     LEFT JOIN MiningMachineProduct AS MMP ON O.productId = MMP.id AND O.productTypeId = 1
     LEFT JOIN MiningMachineSpecification AS MMS ON MMP.miningMachineSpecificationId = MMS.id

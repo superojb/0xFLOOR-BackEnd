@@ -6,10 +6,8 @@
 @Author  ：MoJeffrey
 @Date    ：2023/5/19 19:10 
 """
-from datetime import datetime
 import traceback
 
-import requests
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.authentication import TokenAuthentication
 from rest_framework import permissions, exceptions, serializers
@@ -17,9 +15,11 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
 from Backend.settings import RegularConfirmationOfTransaction_Log, company_Tron_address
+from MiningMachineProduct.models.CurrencyModels import Currency
 from Order.models.MinerBindingModels import MinerBinding
 from Order.models.OrderModels import Order
 from Order.models.OrderPaymentInfoModels import OrderPaymentInfoSerializers, OrderPaymentInfo
+from Order.models.OrderStatusModels import OrderStatus
 from Order.models.TronConfirmationOfTransactionModels import TronConfirmationOfTransaction
 from Order.models.TronIncomeRecordModels import TronIncomeRecord
 from Order.models.TronRequestLogsModels import TronRequestLogs
@@ -32,7 +32,6 @@ from loguru import logger
 
 def RegularConfirmationOfTransaction():
     logger.add(RegularConfirmationOfTransaction_Log, level="INFO", rotation="1 week")
-    logger.info("开始")
 
     try:
         response = TronAPI.GetAccountResource("Main", company_Tron_address)
@@ -46,6 +45,69 @@ def RegularConfirmationOfTransaction():
         logger.info('发生错误，错误信息为：', e)
         logger.info(traceback.format_exc())
         return
+
+
+def GenerateUSDTUserWallet(userId: int) -> str:
+    address, key = TronManage.GetNewAddress()
+    try:
+        C = Currency.objects.get(name='USDT')
+    except Currency.DoesNotExist:
+        raise exceptions.ValidationError(detail={"msg": "不支持USDT， 请联络管理员！"})
+
+    print("USDT ID" + str(C.currencyId))
+    UserWallet.Create(userId, C.currencyId, address, key, False)
+    return address
+
+class GetBalance(GenericAPIView):
+
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    allowed_methods = ['POST']
+
+    swagger_tags = ['订单管理']
+    swagger = {
+        "operation_summary": "Frontend 獲取指定貨幣的餘額",
+        "operation_description": "Frontend 獲取指定貨幣的餘額",
+        "tags": swagger_tags,
+    }
+
+    def verifyRequest(self):
+        """
+        :return:
+        """
+        verify = True
+        for Item in ['CurrencyName']:
+            if Item not in self.request.data:
+                verify = False
+                break
+
+        if verify:
+            return
+        else:
+            raise exceptions.ValidationError(detail={"msg": "缺少必要参数！"})
+
+    def GetUSDTBalance(self):
+        try:
+            address = UserWallet.objects.get(type=1, userId=self.request.user.id).address
+        except UserWallet.DoesNotExist:
+            address = GenerateUSDTUserWallet(self.request.user.id)
+
+        data = {
+            'balance': TronManage.GetUSDTBalance(address),
+            'address': address
+        }
+        return Response(data)
+
+    @swagger_auto_schema(**swagger)
+    def post(self, request, *args, **kwargs):
+        self.verifyRequest()
+
+        if request.data['CurrencyName'] == 'USDT':
+            return self.GetUSDTBalance()
+        else:
+            raise exceptions.ValidationError(detail={"msg": "不支持！"})
+
+
 
 class getPaymentInfo(GenericAPIView):
     class getPaymentInfo_body(serializers.Serializer):
@@ -96,15 +158,7 @@ class getPaymentInfo(GenericAPIView):
 
         # 判斷是否需要創建新地址
         if result['address'] is None:
-            address, key = TronManage.GetNewAddress()
-            UW = UserWallet()
-            UW.type = 1
-            UW.userId = self.request.user.id
-            UW.address = address
-            UW.privateKey = key
-            UW.register = False
-            UW.save()
-
+            address = GenerateUSDTUserWallet(self.request.user.id)
             result['address'] = address
 
         result['balance'] = TronManage.GetUSDTBalance(result['address'])
@@ -171,7 +225,12 @@ class ConfirmPayment(GenericAPIView):
         if balance < result['price']:
             raise exceptions.ValidationError(detail={"msg": "未能繳付账单！", "balance": balance, 'price': result['price']})
 
-        UW = UserWallet.objects.get(userId=self.request.user.id)
+        try:
+            C = Currency.objects.get(name='USDT')
+        except Currency.DoesNotExist:
+            raise exceptions.ValidationError(detail={"msg": "不支持USDT， 请联络管理员！"})
+
+        UW = UserWallet.objects.get(userId=self.request.user.id, currency=C)
 
         # 注册账号， 进入定时任务确认订单
         if UW.register:
@@ -180,12 +239,13 @@ class ConfirmPayment(GenericAPIView):
             if TronManage.IsRegister(UW.address):
                 UW.register = True
                 UW.save()
+                txId = 'IsRegister'
+            else:
+                Register, txId = TronManage.Register(result['orderId'], UW.address)
+                if not Register:
+                    raise exceptions.ValidationError(detail={"msg": "发生致命错误请联系技术人员！"})
 
-            Register, txId = TronManage.Register(result['orderId'], UW.address)
             TronConfirmationOfTransaction.Create(result['orderId'], txId, 1)
-
-            if not Register:
-                raise exceptions.ValidationError(detail={"msg": "发生致命错误请联系技术人员！"})
 
         Order.UpdateStatus(result['orderId'], 2)
         return Response({'code': 0})
@@ -201,38 +261,49 @@ class ConfirmationOfTransaction:
             self.Do(Item)
 
     def Do(self, T: TronConfirmationOfTransaction) -> int:
-        logger.info("确定" + T.orderId)
-        if not self.ConfirmationOfTransaction(T):
-            return 2
+        try:
+            logger.info("确定" + T.orderId)
+            if not self.ConfirmationOfTransaction(T):
+                return 2
 
-        OrderId = T.orderId
-        UserId = Order.objects.get(orderId=T.orderId).userId_id
-        if T.type in [1, 2]:
-            # 代理
-            HaveProxy, result, NeedEnergy = ConfirmationOfTransaction.DelegateEnergyOrBandWidth(OrderId, UserId)
+            OrderId = T.orderId
+            TheOrder = Order.objects.get(orderId=T.orderId)
+            UserId = TheOrder.userId_id
+            if T.type in [1, 2]:
+                # 代理
+                HaveProxy, result, NeedEnergy = ConfirmationOfTransaction.DelegateEnergyOrBandWidth(OrderId, UserId)
 
-            # 转账
-            if not HaveProxy:
-                ConfirmationOfTransaction.TransactionUSDT(result, NeedEnergy, UserId)
+                # 转账
+                if not HaveProxy:
+                    ConfirmationOfTransaction.TransactionUSDT(result, NeedEnergy, UserId)
 
-        elif T.type in [3, 4]:
-            data = {
-                "userId": UserId,
-                "orderId": OrderId
-            }
-            result = OrderPaymentInfo.GetOrderPaymentInfo(**data)
+            elif T.type in [3, 4]:
+                data = {
+                    "userId": UserId,
+                    "orderId": OrderId
+                }
+                result = OrderPaymentInfo.GetOrderPaymentInfo(**data)
 
-            # 取消代理
-            HaveUnDelegate = ConfirmationOfTransaction.UnDelegate(result)
-            if not HaveUnDelegate:
-                # 储存支付确定信息
-                TC = TronConfirmationOfTransaction.objects.get(orderId=OrderId, result=1, type=3)
-                OrderPaymentInfo.Create(TC.orderId, 1, result['price'], TC.transactionId)
+                # 取消代理
+                HaveUnDelegate = ConfirmationOfTransaction.UnDelegate(result)
+                if not HaveUnDelegate:
+                    # 储存支付确定信息
+                    TC = TronConfirmationOfTransaction.objects.get(orderId=OrderId, result=1, type=3)
+                    OrderPaymentInfo.Create(TC.orderId, 1, result['price'], TC.transactionId)
 
-                # 创建矿机绑定资料，等待后台管理员添加机器账号
-                MinerBinding.Create(TC.orderId)
-                Order.UpdateStatus(T.orderId, 5)
-        return 0
+                    Order.UpdateStatus(T.orderId, 5)
+                    # 创建矿机绑定资料，等待后台管理员添加机器账号
+                    if TheOrder.type == 1:
+                        MinerBinding.Create(TC.orderId)
+                    elif TheOrder.type == 2:
+                        MinerBinding.AddElectricity(TC.orderId)
+            return 0
+        except Exception as e:
+            TheOrder = Order.objects.get(orderId=T.orderId)
+            TheOrder.orderStatusId = OrderStatus.objects.get(name='发生错误')
+            TheOrder.note += '|' + '系统发生严重故障！请联络管理员！'
+            TheOrder.save()
+            raise e
 
     @staticmethod
     def DelegateEnergyOrBandWidth(orderId, UserId):
@@ -331,7 +402,12 @@ class ConfirmationOfTransaction:
         :param userId:
         :return:
         """
-        UW = UserWallet.objects.get(userId=userId, type=1)
+        try:
+            C = Currency.objects.get(name='USDT')
+        except Currency.DoesNotExist:
+            raise exceptions.ValidationError(detail={"msg": "不支持USDT， 请联络管理员！"})
+
+        UW = UserWallet.objects.get(userId=userId, currency=C)
         data = {
             "orderId": result['orderId'],
             "address": UW.address,

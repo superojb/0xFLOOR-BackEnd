@@ -42,10 +42,26 @@ class MiningMachine(models.Model):
         cursor = connection.cursor()
         cursor.callproc('UserCloudPowerList_MinerList', (userId, currencyId))
         result = Mysql.dictFetchAll(cursor)[0]
+        MiningMachine.verifyMysqlResult(result)
 
-        if MiningMachine.verifyMysqlResult(result):
-            cursor.nextset()
-            return Mysql.dictFetchAll(cursor)
+        Obj = {
+            'previousAllTotalRevenue': 0,
+            'AllTotalRevenue': 0,
+        }
+
+        cursor.nextset()
+        result = Mysql.dictFetchAll(cursor)
+        Obj['MinerList'] = result
+
+        cursor.nextset()
+        result = Mysql.dictFetchAll(cursor)
+
+        if result:
+            Obj['previousAllTotalRevenue'] = result[0]['previousAllTotalRevenue']
+            Obj['AllTotalRevenue'] = result[0]['AllTotalRevenue']
+
+        return Obj
+
 
 class MiningMachineSerializers(serializers.ModelSerializer):
     class Meta:

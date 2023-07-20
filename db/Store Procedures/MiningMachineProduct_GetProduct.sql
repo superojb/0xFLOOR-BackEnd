@@ -24,7 +24,8 @@ label:BEGIN
         MMS.specification,
         MM.name,
         MMP.price,
-        MMSetting.value AS ElectricityBill
+        CONVERT(MMSetting.value, DOUBLE) * MMP.powerConsumption AS ElectricityBill,
+        MMP.pledgeStatus
     FROM MiningMachineProduct AS MMP
     LEFT JOIN Combo AS C ON C.id = MMP.comboId
     LEFT JOIN ComboPeriod AS CP ON MMP.comboPeriodId = CP.id
@@ -32,7 +33,17 @@ label:BEGIN
     LEFT JOIN MiningMachineSpecification AS MMS ON MMP.miningMachineSpecificationId = MMS.id
     LEFT JOIN MiningMachine AS MM ON MMS.miningMachineId = MM.id
     JOIN MiningMachineSetting AS MMSetting ON MMSetting.key = 'ElectricityBill'
-    WHERE MMP.id = p_productId;
+    WHERE MMP.id = 1;
 
+    SELECT
+        PPR.pledgeProfitRatioId,
+        PPR.PledgeNum,
+        PPR.ProfitRatio,
+        C2.nickname AS 'Currency'
+    FROM MiningMachineProduct AS MMP
+    LEFT JOIN Combo AS C ON C.id = MMP.comboId
+    INNER JOIN Currency AS C2 ON C.currencyId = C2.currencyId
+    INNER JOIN PledgeProfitRatio AS PPR ON C.currencyId = PPR.currencyId
+    WHERE MMP.id  = p_productId;
 END ;;
 DELIMITER ;

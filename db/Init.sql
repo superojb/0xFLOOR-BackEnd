@@ -1,6 +1,23 @@
 CREATE DATABASE 0xFLOOR;
 
-INSERT OrderStatus (orderStatusId, name) VALUES
+set global log_bin_trust_function_creators=1;
+
+-- 无需质押
+INSERT IGNORE PledgeProfitRatio (PledgeProfitRatioId, PledgeNum, ProfitRatio, currencyId)
+VALUE (-999, 0, 100, -999);
+
+-- 电费
+INSERT MiningMachineSetting (miningMachineSettingId, `key`, value) VALUES
+(1, 'ElectricityBill', '1');
+
+INSERT IGNORE Currency (currencyId, name, staticIncome, status, imgUrl, nickname, ranking) VALUES
+(-999, '无', '', 0, '', '无', -999),
+(1, 'Phala', '0.114', 1, 'https://phala.subscan.io/static/img/phala.5cd02d2d.png', 'Phala', 1),
+(2, 'Bitcoin', '0.114', 1, 'https://i-cncdn.investing.com/crypto-logos/80x80/v1/bitcoin.png', 'BTC/BCH', 1),
+(3, 'Phala', '0.114', 1, 'https://s2.coinmarketcap.com/static/img/coins/64x64/2280.png', 'FIL', 1),
+(4, 'USDT', '0.114', 0, '', 'USDT', -100);
+
+INSERT IGNORE OrderStatus (orderStatusId, name) VALUES
 (1, '未支付'),
 (2, '支付中'),
 (3, '部分支付'),
@@ -10,37 +27,30 @@ INSERT OrderStatus (orderStatusId, name) VALUES
 (7, '已关闭'),
 (8, '发生错误');
 
-INSERT Currency (id, name, staticIncome, status, imgUrl, nickname) VALUES
-(1, 'Bitcoin', 0.0791, 1, 'https://www.bitdeer.com/cloud-mining/_nuxt/img/6a33374.png', 'BTC/BCH'),
-(2, 'FilCoin', 0.063, 1, 'https://www.bitdeer.com/cloud-mining/_nuxt/img/ec29e27.png', 'FIL');
-
-INSERT MiningMachineSetting (miningMachineSettingId, `key`, value) VALUES
-(1, 'ElectricityBill', '1');
-
-INSERT Combo (id, name, currencyId) VALUES
+INSERT IGNORE Combo (id, name, currencyId) VALUES
 (1, '比特小鹿', 1);
 
-INSERT ComboModel (id, name) VALUES
+INSERT IGNORE ComboModel (id, name) VALUES
 (1, '经典'),
 (2, '加速');
 
-INSERT ComboPeriod (id, day) VALUES
+INSERT IGNORE ComboPeriod (id, day) VALUES
 (1, 30),
-(2, 120);
+(2, 120),
+(3, 0);
 
-INSERT MiningMachine (id, comboId, name) VALUES
+INSERT IGNORE MiningMachine (id, comboId, name) VALUES
 (1, 1, '螞蟻礦機S19Pro套餐');
 
-INSERT MiningMachineSpecification (id, miningMachineId, specification) VALUES
+INSERT IGNORE MiningMachineSpecification (id, miningMachineId, specification) VALUES
 (1, 1, '10TH/s'),
 (2, 1, '50TH/s'),
 (3, 1, '100TH/s'),
 (4, 1, '200TH/s'),
 (5, 1, '500TH/s');
 
-INSERT MiningMachineProduct (id, comboId, comboPeriodId, comboModelId, miningMachineSpecificationId, price) VALUES
-(1, 1, 1, 1, 1, 10),
-(2, 1, 1, 1, 2, 12),
-(3, 1, 2, 1, 4, 32),
-(4, 1, 2, 1, 5, 52);
-set global log_bin_trust_function_creators=1;
+INSERT IGNORE MiningMachineProduct
+(comboId, comboPeriodId, comboModelId, miningMachineSpecificationId, price, fixedPrice, inventory, pledgeStatus, powerConsumption, quantitySold)
+VALUES
+(1, 3, 1, 1, 10, 10, 1, 1, 1, 1),
+(1, 1, 1, 5, 10, 10, 1, 0, 2, 1);

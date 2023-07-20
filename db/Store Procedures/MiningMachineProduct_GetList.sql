@@ -30,7 +30,10 @@ label:BEGIN
         MM.id AS miningMachineId,
         MM.name,
         MMP.id AS miningMachineProductId,
-        MMP.price
+        MMP.price,
+        MMP.fixedPrice,
+        MMP.inventory,
+        MMP.quantitySold
     FROM Combo AS C
     LEFT JOIN MiningMachineProduct AS MMP ON C.id = MMP.comboId
     LEFT JOIN ComboPeriod AS CP ON MMP.comboPeriodId = CP.id
@@ -64,8 +67,12 @@ label:BEGIN
         comboModelId,
         comboPeriodId,
         miningMachineSpecificationId,
-        price
+        price,
+        fixedPrice,
+        inventory,
+        quantitySold
     FROM MiningMachineProduct_List ORDER BY miningMachineSpecificationId;
 
+    DROP TEMPORARY TABLE IF EXISTS MiningMachineProduct_List;
 END ;;
 DELIMITER ;

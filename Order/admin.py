@@ -9,6 +9,7 @@ from Order.models.TronConfirmationOfTransactionModels import TronConfirmationOfT
 from Order.models.TronIncomeRecordModels import TronIncomeRecord
 from Order.models.TronRequestLogsModels import TronRequestLogs
 from Order.models.MinerBindingModels import MinerBinding
+from Tools.Khala.KhalaMange import KhalaMange
 from Tools.Tron.models.AccountResource import AccountResource
 
 
@@ -36,13 +37,33 @@ class TronRequestLogsAdmin(admin.ModelAdmin):
     list_display = ['orderId', 'url', 'params', 'response', 'type', 'createTime']
 
 class MinerBindingAdmin(admin.ModelAdmin):
-    list_display = ['orderId', 'miningMachineProductId', 'userId', 'minerAccount', 'miningStatusId', 'updateTime']
-    search_fields = ("orderId",)
+    list_display = ['MinerBindingId', 'miningMachineProductId', 'PledgeProfitRatioString', 'userId', 'minerAccount', 'miningStatusId', 'updateTime']
+    search_fields = ("MinerBindingId",)
     readonly_fields = ("MinerBindingId", "orderId", "miningMachineProductId", "userId", "miningStatusId", "updateTime", "createTime")
 
     def save_model(self, request, obj, form, change):
-        obj.miningStatusId = 2
+        if obj.minerAccount != None:
+            self.message_user(request, "不可修改机器账号！", level="ERROR")
+            return
+
         obj.minerAccount = form.cleaned_data['minerAccount']
+
+        result = MinerBinding.GetPledgeInfo(obj.MinerBindingId, obj.userId_id)
+
+        # 如果质押状态也确定， 或者无需质押
+        if result.type == 2 or result.PledgeNum == 0:
+            if obj.miningStatusId == 7:
+                obj.miningStatusId = 7
+            elif result.status == 1 or result.PledgeNum == 0:
+                # 檢查是否在工作
+                response = KhalaMange.GetPhalaComputationSessions(obj.minerAccount, obj.MinerBindingId)
+                IsWork = KhalaMange.getPhalaComputationIsWork(response)
+                obj.miningStatusId = 4 if IsWork else 3
+            else:
+                obj.miningStatusId = 2
+        else:
+            obj.miningStatusId = 2
+
         obj.save()
 
 admin.site.register(Order, OrderAdmin)

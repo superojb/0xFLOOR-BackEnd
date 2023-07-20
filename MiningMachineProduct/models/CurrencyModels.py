@@ -49,6 +49,8 @@ class Currency(models.Model):
     Status.short_description = "状态"
 
     def Logo(self):
+        if self.imgUrl == "":
+            return ""
         return format_html(f'<img style="height: 50px;width: 50px;margin: auto 10px;border-radius: 50px;" src="{ self.imgUrl }"/>')
 
     Logo.short_description = "Logo"

@@ -6,9 +6,10 @@ from MiningMachineProduct.models.ComboModels import Combo
 from MiningMachineProduct.models.ComboPeriodModels import ComboPeriod
 from MiningMachineProduct.models.CurrencyModels import Currency
 from MiningMachineProduct.models.MiningMachineModels import MiningMachine
-from MiningMachineProduct.models.MiningMachineProductModels import MiningMachineProduct
+from MiningMachineProduct.models.MiningMachineProductModels import MiningMachineProduct, MiningMachineProductPostForm
 from MiningMachineProduct.models.MiningMachineSettingModels import MiningMachineSetting
 from MiningMachineProduct.models.MiningMachineSpecificationModels import MiningMachineSpecification
+from MiningMachineProduct.models.PledgeProfitRatioModels import PledgeProfitRatio
 
 
 class ComboModelAdmin(admin.ModelAdmin):
@@ -27,13 +28,17 @@ class MiningMachineAdmin(admin.ModelAdmin):
     list_display = ['name', 'comboId']
 
 class MiningMachineProductAdmin(admin.ModelAdmin):
-    list_display = ['id', 'comboId', 'comboPeriodId', 'comboModelId', 'miningMachineSpecificationId', 'price']
+    list_display = ['Name', 'ThePrice', 'powerConsumption', 'pledgeStatus', 'soldAndStock']
+    form = MiningMachineProductPostForm
 
 class MiningMachineSettingAdmin(admin.ModelAdmin):
     list_display = ['key', 'value']
 
 class MiningMachineSpecificationAdmin(admin.ModelAdmin):
     list_display = ['specification', 'miningMachineId']
+
+class PledgeProfitRatioAdmin(admin.ModelAdmin):
+    list_display = ['CurrencyName', 'Pledge', 'Ratio']
 
 admin.site.register(ComboModel, ComboModelAdmin)
 admin.site.register(Combo, ComboAdmin)
@@ -43,3 +48,5 @@ admin.site.register(MiningMachine, MiningMachineAdmin)
 admin.site.register(MiningMachineProduct, MiningMachineProductAdmin)
 admin.site.register(MiningMachineSetting, MiningMachineSettingAdmin)
 admin.site.register(MiningMachineSpecification, MiningMachineSpecificationAdmin)
+admin.site.register(PledgeProfitRatio, PledgeProfitRatioAdmin)
+

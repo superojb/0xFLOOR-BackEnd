@@ -66,6 +66,7 @@ FLUSH PRIVILEGES
 docker network create -d bridge network1
 docker network connect network1 mysql
 docker network connect network1 Backend
+docker network connect network1 Khala
 
 apt install iputils-ping
 ping mysql
@@ -109,5 +110,4 @@ service cron status
 
 python manage.py crontab remove
 python manage.py crontab add
-
 ```

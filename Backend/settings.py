@@ -222,11 +222,13 @@ CRONJOBS = [
     ('*/1 * * * *', 'Order.Views.Frontend.MinerBindingAPIs.RegularConfirmationPledge'),
     ('*/1 * * * *', 'Order.Views.Frontend.OrderAPIs.RegularCheckTimeout'),
     ('*/1 * * * *', 'Order.Views.Frontend.MinerBindingAPIs.RegularSettlement'),
+    ('*/1 * * * *', 'User.models.UserWalletModels.UserWalletConfirmationOfTransactionRun'),
 ]
 RegularConfirmationOfTransaction_Log = '/home/backend/RegularConfirmationOfTransaction.log'
 RegularConfirmationPledge_Log = '/home/backend/RegularConfirmationPledge.log'
 RegularCheckTimeout_Log = '/home/backend/RegularCheckTimeout.log'
 RegularSettlement_Log = '/home/backend/RegularSettlement.log'
+UserWalletConfirmationOfTransaction_Log = '/home/backend/UserWalletConfirmationOfTransaction.log'
 
 # 允许的来源（域），可以是特定的域名或通配符 *
 CORS_ORIGIN_ALLOW_ALL = True

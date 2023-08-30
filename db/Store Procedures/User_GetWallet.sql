@@ -25,12 +25,15 @@ label:BEGIN
     SELECT 0 AS code;
 
     SELECT
-        cashOut,
-        freeze,
-        balance,
-        thaw
-    FROM UserWallet
-    WHERE userId = p_UserId AND currencyId = p_currencyId;
+        C.name,
+        UW.address,
+        UW.cashOut,
+        UW.freeze,
+        UW.balance,
+        UW.thaw
+    FROM UserWallet AS UW
+    INNER JOIN `0xFLOOR`.Currency AS C ON UW.currencyId = C.currencyId
+    WHERE UW.userId = p_UserId AND UW.currencyId = p_currencyId;
 
 END ;;
 DELIMITER ;

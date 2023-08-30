@@ -7,6 +7,7 @@
 @Date    ：2023/5/11 16:57 
 """
 import decimal
+from typing import List
 
 from tronpy.keys import PrivateKey
 from tronpy import Tron
@@ -17,6 +18,7 @@ from Tools.Tron.models.Transaction import Transaction
 from Backend.settings import company_Tron_address, company_Tron_private_key_string, \
     Tron_network, usdt_contract_address, usdt_TransferBandWidthRequired, Tron_Web
 from decimal import Decimal
+from Tools.common.TransactionObj import TransactionObj
 
 
 class TronManage:
@@ -32,6 +34,7 @@ class TronManage:
         addr=usdt_contract_address,
         abi=tron.get_contract(usdt_contract_address).abi
     )
+
     __USDTTransferBandWidthRequired = usdt_TransferBandWidthRequired
 
     def __init__(self):
@@ -180,6 +183,30 @@ class TronManage:
                 return 1, response['txid']
 
         return 2, ''
+
+    @staticmethod
+    def TransactionHistory(address) -> List[TransactionObj]:
+        """
+        :return:
+        """
+        confirmed = TronAPI.GetTransactionHistory(address, address)['data']
+        UnConfirmed = TronAPI.GetTransactionHistory(address, address, False)['data']
+
+        TransactionList = []
+
+        for data in UnConfirmed:
+            T = TransactionObj(data)
+            T.confirmed = False
+            T.recharge = T.to == address
+            TransactionList.append(T)
+
+        for data in confirmed :
+            T = TransactionObj(data)
+            T.confirmed = True
+            T.recharge = T.to == address
+            TransactionList.append(T)
+
+        return TransactionList
 
     @staticmethod
     def Delegate(orderId, address, balance, resource: str):

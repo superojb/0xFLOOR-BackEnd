@@ -10,6 +10,7 @@ from MiningMachineProduct.models.MiningMachineProductModels import MiningMachine
 from MiningMachineProduct.models.MiningMachineSettingModels import MiningMachineSetting
 from MiningMachineProduct.models.MiningMachineSpecificationModels import MiningMachineSpecification
 from MiningMachineProduct.models.PledgeProfitRatioModels import PledgeProfitRatio
+from MiningMachineProduct.models.CurrencyNetworkModels import CurrencyNetwork
 
 
 class ComboModelAdmin(admin.ModelAdmin):

@@ -32,10 +32,13 @@ class TronAPI:
         :return:
         """
         response = None
-        kwargs = {
-            "url": URL,
-            "json": params,
-        }
+        kwargs = {"url": URL,}
+
+        if Post:
+            kwargs['json'] = params
+        else:
+            kwargs['params'] = params
+
         while True:
             try:
                 response = requests.post(**kwargs) if Post else requests.get(**kwargs)
@@ -43,6 +46,7 @@ class TronAPI:
             except requests.exceptions.ConnectionError:
                 logger.info("requests.exceptions.ConnectionError Retry")
                 continue
+
         if response.status_code == 200:
             responseData = response.json()
             TronAPI.Log(URL, Identifier, params, responseData, 1)
@@ -200,6 +204,22 @@ class TronAPI:
                                     Identifier=Identifier)
         return response
 
+    @staticmethod
+    def GetTransactionHistory(Identifier, Address, confirmed: bool = True) -> dict:
+        params = {
+            "limit": 100,
+            "contract_address": usdt_contract_address
+        }
+
+        if confirmed:
+            params['only_confirmed'] = True
+        else:
+            params['only_unconfirmed'] = True
+
+        response = TronAPI.Requests(URL=f'{TronAPI.__base_url}v1/accounts/{Address}/transactions/trc20', params=params,
+                                    Identifier=Identifier, Post=False)
+
+        return response
 
     @staticmethod
     def GetAccount(Address: str) -> dict:

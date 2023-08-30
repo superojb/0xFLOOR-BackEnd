@@ -5,6 +5,8 @@ from User.models.LoginLogsModels import LoginLogs
 from User.models.RevenueAddressModels import RevenueAddress
 from User.models.UserWalletModels import UserWallet
 from User.models.UserCashOutApplyModels import UserCashOutApply
+from User.models.UserWalletLogModels import UserWalletLog
+from User.models.WithdrawalAddressModels import WithdrawalAddress
 
 
 class LoginLogsAdmin(admin.ModelAdmin):

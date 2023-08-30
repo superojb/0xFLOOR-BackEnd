@@ -4,18 +4,25 @@ set global log_bin_trust_function_creators=1;
 
 -- 无需质押
 INSERT IGNORE PledgeProfitRatio (PledgeProfitRatioId, PledgeNum, ProfitRatio, currencyId)
-VALUE (-999, 0, 100, -999);
+VALUE (-999, 0, 100, -999),
+(1, 0, 30, 1),
+(2, 1, 40, 1),
+(3, 10000, 70, 1);
 
 -- 电费
 INSERT MiningMachineSetting (miningMachineSettingId, `key`, value) VALUES
 (1, 'ElectricityBill', '1');
 
-INSERT IGNORE Currency (currencyId, name, staticIncome, status, imgUrl, nickname, ranking) VALUES
-(-999, '无', '', 0, '', '无', -999),
-(1, 'Phala', '0.114', 1, 'https://phala.subscan.io/static/img/phala.5cd02d2d.png', 'Phala', 1),
-(2, 'Bitcoin', '0.114', 1, 'https://i-cncdn.investing.com/crypto-logos/80x80/v1/bitcoin.png', 'BTC/BCH', 1),
-(3, 'Phala', '0.114', 1, 'https://s2.coinmarketcap.com/static/img/coins/64x64/2280.png', 'FIL', 1),
-(4, 'USDT', '0.114', 0, '', 'USDT', -100);
+INSERT IGNORE Currency (currencyId, name, staticIncome, status, imgUrl, nickname, ranking, color, exchangeRate, minimumWithdrawal) VALUES
+(-999, '无', '', 0, '', '', -999, '', 0, 0),
+(1, 'Phala', '0.114', 1, 'https://phala.subscan.io/static/img/phala.5cd02d2d.png', 'Phala', 1, 'D0FE53', 1, 10000),
+(2, 'Bitcoin', '0.114', 1, 'https://i-cncdn.investing.com/crypto-logos/80x80/v1/bitcoin.png', 'BTC/BCH', 1, '', 1, 1),
+(3, 'Phala', '0.114', 1, 'https://s2.coinmarketcap.com/static/img/coins/64x64/2280.png', 'FIL', 1, '', 1, 100),
+(4, 'USDT', '0.114', 0, '', 'USDT', -100, '0DA88B', 1, 10);
+
+INSERT IGNORE CurrencyNetwork (currencyNetworkId, name, status, currencyId) VALUES
+(1, 'TRC20', 1, 4),
+(2, 'Polkadot', 1, 1);
 
 INSERT IGNORE OrderStatus (orderStatusId, name) VALUES
 (1, '未支付'),

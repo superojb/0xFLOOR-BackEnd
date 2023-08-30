@@ -11,6 +11,7 @@ from django.db import models, connection
 from rest_framework import serializers, exceptions
 from django.utils.html import format_html
 from Tools.Mysql import Mysql
+from django.core.validators import MinLengthValidator
 
 STATUS_CHOICES = ((1, '开启'),(0, '关闭'),(2, '禁售'),)
 
@@ -25,6 +26,9 @@ class Currency(models.Model):
     status = models.IntegerField(help_text="状态", choices=STATUS_CHOICES, verbose_name='状态')
     imgUrl = models.CharField(max_length=500, help_text="Logo Url", verbose_name='Logo')
     ranking = models.IntegerField(verbose_name='排名', unique=True)
+    exchangeRate = models.FloatField(help_text="汇率", verbose_name='汇率')
+    color = models.CharField(max_length=6, validators=[MinLengthValidator(5)], verbose_name='颜色')
+    minimumWithdrawal = models.FloatField(verbose_name='最低提现')
 
     def __str__(self):
         return self.nickname

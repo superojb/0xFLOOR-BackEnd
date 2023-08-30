@@ -33,7 +33,7 @@ class TronRequestLogs(models.Model):
         pass
 
     @staticmethod
-    def Create(orderId: str, url: str, params: dict, response: dict, type: int):
+    def Create(url: str, orderId: str, params: dict, response: dict, type: int):
         T = TronRequestLogs()
         T.orderId = orderId
         T.url = url

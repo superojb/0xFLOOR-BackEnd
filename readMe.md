@@ -16,10 +16,13 @@ sudo systemctl enable docker
 
 ### Python
 ```shell
-docker run -it -d --name=Backend -p 80:80 -v /home/backend:/home/backend python:3.9.0 bash
+docker run -itd --name=Backend -p 80:80 -v /home/0xFloor_backend:/home python:3.9.0 bash
 
 docker exec -it Backend /bin/bash
-cd /home/backend/
+cd /home/
+
+lsof -i:8000
+python manage.py runserver 0.0.0.0:8000
 
 apt-get update -y
 apt-get install vim
@@ -27,20 +30,21 @@ apt-get install vim
 
 ### python 依赖
 ```shell
-pip install Django==3.2.18
-pip install django-rest-auth==0.9.5
-pip install django-allauth==0.40.0
-pip install django-filter==2.4.0
-pip install cryptography
-pip install drf-yasg
-pip install python3-openid
-pip install pymysql
-pip install tronpy
-pip install loguru
-pip install django-crontab
-pip install django-cors-headers
-pip install django-filter
-pip install django-simpleui
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple Django==3.2.18
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple django-rest-auth==0.9.5
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple django-allauth==0.40.0
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple django-filter==2.4.0
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple cryptography
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple drf-yasg
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple python3-openid
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple pymysql
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple tronpy
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple loguru
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple django-crontab
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple django-cors-headers
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple django-filter
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple django-simpleui
+
 ```
 
 ### 数据库
@@ -68,8 +72,6 @@ docker network connect network1 mysql
 docker network connect network1 Backend
 docker network connect network1 Khala
 
-apt install iputils-ping
-ping mysql
 # 看IP
 ```
 

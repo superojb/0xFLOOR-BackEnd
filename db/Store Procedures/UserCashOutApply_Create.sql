@@ -4,7 +4,7 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`%` PROCEDURE `UserCashOutApply_Create`(
     p_userId INT,
     p_amount DOUBLE,
-    p_currencyId INT,
+    p_currencyNetworkId INT,
     p_address VARCHAR(200)
 )
 
@@ -13,6 +13,7 @@ CREATE DEFINER=`root`@`%` PROCEDURE `UserCashOutApply_Create`(
   code = 1 = 没有该订单
   code = 2 = 没有该钱包
   code = 3 = 余额不足
+  code = 4 = 该提现网络不可用
  */
 label:BEGIN
     DECLARE v_balance DOUBLE;
@@ -21,7 +22,12 @@ label:BEGIN
     IF NOT EXISTS(SELECT id FROM auth_user WHERE id = p_userId) THEN
         SELECT 1 AS code;
         LEAVE label;
-    END IF ;
+    END IF;
+
+    IF NOT EXISTS(SELECT currencyNetworkId FROM CurrencyNetwork WHERE currencyNetworkId = p_currencyNetworkId AND status = 1) THEN
+        SELECT 4 AS code;
+        LEAVE label;
+    END IF;
 
     SELECT
         userWalletId,

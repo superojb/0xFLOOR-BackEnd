@@ -12,6 +12,7 @@ from rest_framework import  serializers
 from rest_framework import exceptions
 
 from MiningMachineProduct.models.CurrencyModels import Currency
+from MiningMachineProduct.models.CurrencyNetworkModels import CurrencyNetwork
 from Tools.Mysql import Mysql
 import django.utils.timezone as timezone
 
@@ -27,6 +28,7 @@ class UserCashOutApply(models.Model):
     """
     UserCashOutApplyId = models.AutoField(primary_key=True)
     userId = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, help_text="用户ID", verbose_name='用户', db_column='userId')
+    currencyNetwork = models.ForeignKey(CurrencyNetwork, on_delete=models.PROTECT, verbose_name='网络', db_column='currencyNetworkId')
     status = models.IntegerField(verbose_name='状态', choices=UserCashOutApply_status)
     currencyId = models.ForeignKey(Currency, on_delete=models.PROTECT, help_text="货币Id", verbose_name='货币', db_column='currencyId')
     address = models.CharField(max_length=200, verbose_name="提现地址")

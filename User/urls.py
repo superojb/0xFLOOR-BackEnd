@@ -11,8 +11,9 @@ from User.Views.AccountConfirmEmail import AccountConfirmEmail
 from User.Views.Frontend.LoginLogsAPIs import LoginLogsList
 from User.Views.Frontend.RevenueAddressAPIs import RevenueAddressList, RevenueAddressAdd, RevenueAddressDelete, RevenueAddressUpdate
 from User.Views.Login import Login
-from User.Views.Frontend.UserAPIs import UserInfo, GetWallet, CashOutApply
-
+from User.Views.Frontend.UserAPIs import UserInfo, GetWallet, CashOutApply, GetWalletList, \
+    GetRechargeInfo, GetConfirmRecharge, GetWalletLogList, GetWithdrawalsInfo
+from User.Views.Frontend.WithdrawalAddressAPIs import GetWithdrawalAddressList, WithdrawalAddressCreate, WithdrawalAddressDelete
 
 urlpatterns = [
     re_path('frontend/rest-auth/login/', Login.as_view(), name='rest_login'),
@@ -30,5 +31,13 @@ urlpatterns = [
 
     path('frontend/user-info/', UserInfo.as_view(), name='user-info'),
     path('frontend/get_wallet/', GetWallet.as_view(), name='get_wallet'),
+    path('frontend/get_wallet_list/', GetWalletList.as_view(), name='get_wallet_list'),
+    path('frontend/get_recharge_info/', GetRechargeInfo.as_view(), name='get_recharge_info'),
+    path('frontend/get_confirm_recharge/', GetConfirmRecharge.as_view(), name='get_confirm_recharge'),
+    path('frontend/get_wallet_log_list/', GetWalletLogList.as_view(), name='get_wallet_log_list'),
+    path('frontend/get_withdrawals_info/', GetWithdrawalsInfo.as_view(), name='get_withdrawals_info'),
+    path('frontend/get_withdrawals_address_list/', GetWithdrawalAddressList.as_view(), name='get_withdrawals_address_list'),
+    path('frontend/withdrawals_address_create/', WithdrawalAddressCreate.as_view(), name='withdrawals_address_create'),
+    path('frontend/withdrawals_address_delete/', WithdrawalAddressDelete.as_view(), name='withdrawals_address_delete'),
     path('frontend/cash_out_apply/', CashOutApply.as_view(), name='cash_out_apply'),
 ]
